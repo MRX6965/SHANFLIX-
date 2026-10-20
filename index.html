@@ -9,7 +9,6 @@
 <meta name="google-adsense-account" content="ca-pub-4742152553733393">
 <title>SHANFLIX | K-Drama</title>
 
-<!-- ✅ Google AdSense Script -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4742152553733393"
      crossorigin="anonymous"></script>
 
@@ -162,7 +161,6 @@ footer p{margin:0 0 4px}
 .placeholder p{margin:4px 0;font-size:12.5px;color:#b8b0cd}
 .placeholder small{font-size:11px;color:#8b82a8;margin-top:8px;word-break:break-all;opacity:0.7}
 
-/* ✅ Video Poster with Play Button */
 .video-poster{
   position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;cursor:pointer;
 }
@@ -189,7 +187,6 @@ footer p{margin:0 0 4px}
   box-shadow:0 2px 6px rgba(0,0,0,.7);
 }
 
-/* ✅ Pre-roll Ad Overlay */
 .preroll{
   position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.96);
   display:flex;align-items:center;justify-content:center;padding:20px;
@@ -292,6 +289,80 @@ footer p{margin:0 0 4px}
   .grid{gap:7px}.card h3{font-size:10px}.card .info{font-size:9px}main{padding:0 12px 50px}
   .video-poster .big-play{width:56px;height:56px;font-size:20px}
 }
+
+/* =====================================================
+   RESPONSIVE LAYOUT — Mobile / Tablet / iPad / Desktop
+   ===================================================== */
+@media (min-width: 640px) {
+  body { display: block; }
+  .app { max-width: 100%; box-shadow: none; margin: 0 auto; }
+  .modalbox { max-width: 100%; }
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .foryou-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  header { padding: 22px 28px; padding-top: calc(22px + env(safe-area-inset-top, 0px)); }
+  .searchbox { max-width: 340px; }
+  main { padding: 0 28px 60px; }
+  .hero { padding: 130px 28px 48px; padding-top: calc(130px + env(safe-area-inset-top, 0px)); min-height: 55vh; background-position: center 20%; }
+  .hero h1 { font-size: 46px; }
+  .hero .sub { font-size: 14.5px; max-width: 620px; }
+  footer { padding: 26px 28px; }
+  .info-bar, .foryou-section { padding-left: 28px; padding-right: 28px; }
+  .preroll-box { max-width: 540px; }
+  .preroll-ad, .preroll-ad ins { min-height: 320px; }
+  .card h3 { font-size: 12.5px; }
+  .card .info { font-size: 10.5px; }
+}
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .foryou-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  header { padding: 26px 40px; padding-top: calc(26px + env(safe-area-inset-top, 0px)); }
+  main { padding: 0 40px 70px; }
+  .hero { padding: 150px 40px 56px; padding-top: calc(150px + env(safe-area-inset-top, 0px)); min-height: 58vh; }
+  .hero h1 { font-size: 52px; }
+  .hero .sub { font-size: 15px; max-width: 680px; }
+  .info-bar, .foryou-section { padding-left: 40px; padding-right: 40px; }
+  .searchbox { max-width: 360px; }
+}
+
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .foryou-grid { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  header { padding: 28px 56px; padding-top: calc(28px + env(safe-area-inset-top, 0px)); }
+  main { padding: 0 56px 80px; }
+  .hero { padding: 170px 56px 64px; padding-top: calc(170px + env(safe-area-inset-top, 0px)); min-height: 62vh; }
+  .hero h1 { font-size: 60px; }
+  .hero .sub { font-size: 16px; max-width: 760px; }
+  .info-bar, .foryou-section { padding-left: 56px; padding-right: 56px; }
+  .modalbox { max-width: 1000px; margin: 0 auto; }
+  .card h3 { font-size: 13px; }
+  .card .info { font-size: 11px; }
+  .searchbox { max-width: 380px; }
+}
+
+@media (min-width: 1280px) {
+  .grid { grid-template-columns: repeat(6, 1fr); gap: 20px; }
+  .foryou-grid { grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  header { padding: 30px 72px; padding-top: calc(30px + env(safe-area-inset-top, 0px)); }
+  main { padding: 0 72px 100px; }
+  .hero { padding: 190px 72px 72px; padding-top: calc(190px + env(safe-area-inset-top, 0px)); min-height: 65vh; }
+  .hero h1 { font-size: 72px; }
+  .hero .sub { font-size: 17px; max-width: 820px; }
+  .info-bar, .foryou-section { padding-left: 72px; padding-right: 72px; }
+  .modalbox { max-width: 1200px; }
+  .searchbox { max-width: 400px; }
+}
+
+@media (min-width: 1600px) {
+  .app { max-width: 1600px; margin: 0 auto; }
+  .grid { grid-template-columns: repeat(7, 1fr); gap: 22px; }
+  .foryou-grid { grid-template-columns: repeat(7, 1fr); gap: 18px; }
+  header, main { padding-left: 96px; padding-right: 96px; }
+  .hero { padding-left: 96px; padding-right: 96px; }
+  .info-bar, .foryou-section { padding-left: 96px; padding-right: 96px; }
+  .modalbox { max-width: 1400px; }
+  .searchbox { max-width: 440px; }
+}
 </style>
 </head>
 <body>
@@ -341,16 +412,13 @@ footer p{margin:0 0 4px}
   </div>
 </div>
 
-<!-- ✅ Pre-roll Ad Overlay (15 sec) -->
 <div class="preroll hidden" id="preroll" role="dialog" aria-modal="true" aria-label="Advertisement">
   <div class="preroll-box">
     <div class="preroll-header">
       <span class="preroll-label">Ad</span>
       <span class="preroll-timer" id="prerollTimer">15</span>
     </div>
-    <div class="preroll-ad" id="prerollAd">
-      <!-- AdSense ins এখানে dynamically inject হবে -->
-    </div>
+    <div class="preroll-ad" id="prerollAd"></div>
     <div class="preroll-footer">
       <div class="preroll-progress"><div class="preroll-bar" id="prerollBar"></div></div>
       <div class="preroll-note">Your video will play after the ad</div>
@@ -372,10 +440,9 @@ const firebaseConfig = {
   appId: "1:923195463881:web:a8ab0dfd4275cb3db55518"
 };
 
-// ⚠️ এখানে আপনার AdSense Display Ad Unit এর Slot ID বসান
 const ADSENSE_SLOT = "1111111111";
 const ADSENSE_CLIENT = "ca-pub-4742152553733393";
-const PREROLL_DURATION = 15; // সেকেন্ড
+const PREROLL_DURATION = 15;
 
 const DEMO_MODE = false;
 const demo = [];
@@ -393,6 +460,30 @@ const fallback="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#39215c"/><stop offset="100%" stop-color="#111827"/></linearGradient></defs><rect width="200" height="300" fill="url(#g)"/><text x="100" y="150" fill="#c4b5fd" font-size="14" font-weight="bold" text-anchor="middle" font-family="Arial">SHANFLIX</text><text x="100" y="170" fill="#8b82a8" font-size="8" text-anchor="middle" font-family="Arial">NO IMAGE</text></svg>'
 );
 
+/* ============ ✅ VIDEO STOP (Audio Leak Fix) ============ */
+function stopVideo(){
+  const va = document.getElementById("videoArea");
+  if(!va) return;
+  
+  // iframe এবং native video/audio বন্ধ করা
+  const mediaEls = va.querySelectorAll("iframe, video, audio");
+  mediaEls.forEach(el => {
+    try {
+      if(el.tagName === "IFRAME"){
+        el.src = "about:blank";
+        el.removeAttribute("src");
+      } else {
+        el.pause();
+        el.removeAttribute("src");
+        el.load();
+      }
+    } catch(e){}
+  });
+  
+  // DOM থেকে ক্লিয়ার করা (সাউন্ড সম্পূর্ণ বন্ধ হবে)
+  va.innerHTML = "";
+}
+
 /* ---------- Pre-roll Ad System ---------- */
 function showPreroll(onComplete){
   const overlay = $("#preroll");
@@ -400,7 +491,6 @@ function showPreroll(onComplete){
   const timerEl = $("#prerollTimer");
   const barEl = $("#prerollBar");
 
-  // নতুন ins inject (প্রতি বার নতুন push হবে)
   adContainer.innerHTML = `
     <ins class="adsbygoogle"
          style="display:block"
@@ -411,12 +501,9 @@ function showPreroll(onComplete){
 
   overlay.classList.remove("hidden");
 
-  // AdSense push
-  try {
-    (window.adsbygoogle = window.adsbygoogle || []).push({});
-  } catch(e) { console.warn("AdSense:", e); }
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); }
+  catch(e){ console.warn("AdSense:", e); }
 
-  // Countdown
   const totalMs = PREROLL_DURATION * 1000;
   const start = Date.now();
   timerEl.textContent = PREROLL_DURATION;
@@ -434,7 +521,7 @@ function showPreroll(onComplete){
       clearInterval(prerollTimer);
       prerollTimer = null;
       overlay.classList.add("hidden");
-      adContainer.innerHTML = ""; // ad ins cleanup
+      adContainer.innerHTML = "";
       if(typeof onComplete === "function") onComplete();
     }
   }, 100);
@@ -636,7 +723,8 @@ function player(ep, src) {
             const match = url.match(/src=["'](.*?)["']/i);
             if (match && match[1]) finalUrl = match[1];
         }
-        return `<iframe class="player" src="${safe(finalUrl)}" title="${safe(ep.title || "Video player")}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+        // ✅ loading="lazy" সরানো হয়েছে এবং referrerpolicy="origin" করা হয়েছে যাতে ভিডিও ব্লক না হয়
+        return `<iframe class="player" src="${safe(finalUrl)}" title="${safe(ep.title || "Video player")}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="origin"></iframe>`;
     } catch {
         return '<div class="placeholder">Invalid video embed URL.</div>';
     }
@@ -673,6 +761,10 @@ document.addEventListener('click', () => {
 function renderDetail() {
     const d = selected;
     if (!d) return;
+
+    // ✅ নতুন এপিসোড/ল্যাঙ্গুয়েজ সিলেক্ট করার আগে আগের চলমান ভিডিও বন্ধ করা
+    stopVideo();
+
     const ss = seasonsOf(d);
     if (seasonIndex >= ss.length) seasonIndex = 0;
     const curSeason = ss[seasonIndex];
@@ -701,7 +793,6 @@ function renderDetail() {
     const curSrcs = ep ? loadSources(ep) : [];
     const curSrc = curSrcs.find(s => s.language === selectedLangName) || curSrcs[0];
 
-    // state-save
     currentEp = ep || null;
     currentSrc = curSrc || null;
 
@@ -773,13 +864,12 @@ function renderDetail() {
         </div>
     `;
 
-    // Play button bind
     $("#playBtn")?.addEventListener("click", handlePlayClick);
 
     setupCustomSelect('langCustomSelect', (val) => {
         selectedLangName = val;
         episodeIndex = 0; 
-        cancelPreroll(); // নিরাপত্তা: পুরোনো অ্যাড বন্ধ
+        cancelPreroll();
         renderDetail();
     });
 
@@ -803,6 +893,9 @@ function renderDetail() {
 }
 
 function openDrama(id){
+ // ✅ নতুন ড্রামা খোলার আগে পূর্বের চলমান ভিডিও বন্ধ
+ stopVideo();
+
  selected=dramas.find(d=>d.id===id);
  if(!selected)return;
  seasonIndex=0;episodeIndex=0;
@@ -813,14 +906,33 @@ function openDrama(id){
  document.body.style.overflow="hidden";
  $("#modal").scrollTop=0;
 }
+
+/* ✅ FIXED: মডাল বন্ধ হলে ভিডিও সম্পূর্ণ destroy হবে, কিন্তু নতুন ভিডিও প্লে করতে কোনো সমস্যা হবে না */
 function closeModal(){
   cancelPreroll();
+  stopVideo();                       // চলমান ভিডিও + iframe বন্ধ
+  const detail = document.getElementById("detail");
+  if(detail) detail.innerHTML = "";  // innerHTML clear → কোনো লিক নেই
   $("#modal").classList.add("hidden");
   document.body.style.overflow="";
 }
+
 $("#close").addEventListener("click",closeModal);
 $("#modal").addEventListener("click",e=>{if(e.target===$("#modal"))closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==="Escape"){closeModal();cancelPreroll();}});
+
+/* ✅ ট্যাব/অ্যাপ hidden হলে native media pause হবে (অডিও লিক রোধে) */
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden){
+    document.querySelectorAll("#videoArea video, #videoArea audio, #detail video, #detail audio").forEach(m => {
+      try { m.pause(); } catch(e){}
+    });
+  }
+});
+
+/* ✅ পেজ unload হলে সব বন্ধ হবে */
+window.addEventListener("pagehide", stopVideo);
+window.addEventListener("beforeunload", stopVideo);
 
 $("#search").addEventListener("input",e=>{ searchText=e.target.value.trim(); renderGrid(); });
 $("#genres").querySelectorAll("[data-genre]").forEach(b=>b.addEventListener("click",()=>{
