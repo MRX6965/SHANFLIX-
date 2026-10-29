@@ -290,9 +290,6 @@ footer p{margin:0 0 4px}
   .video-poster .big-play{width:56px;height:56px;font-size:20px}
 }
 
-/* =====================================================
-   RESPONSIVE LAYOUT — Mobile / Tablet / iPad / Desktop
-   ===================================================== */
 @media (min-width: 640px) {
   body { display: block; }
   .app { max-width: 100%; box-shadow: none; margin: 0 auto; }
@@ -444,14 +441,12 @@ const ADSENSE_SLOT = "1111111111";
 const ADSENSE_CLIENT = "ca-pub-4742152553733393";
 const PREROLL_DURATION = 15;
 
-const DEMO_MODE = false;
-const demo = [];
-
 let dramas=[],genre="All",searchText="",selected=null,seasonIndex=0,episodeIndex=0;
 let selectedLangName=""; 
 let featured=null,heroBuilt=false;
 let currentEp=null,currentSrc=null;
 let prerollTimer=null;
+let searchTimeout=null;
 
 const $=s=>document.querySelector(s);
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -464,8 +459,6 @@ const fallback="data:image/svg+xml,"+encodeURIComponent(
 function stopVideo(){
   const va = document.getElementById("videoArea");
   if(!va) return;
-  
-  // iframe এবং native video/audio বন্ধ করা
   const mediaEls = va.querySelectorAll("iframe, video, audio");
   mediaEls.forEach(el => {
     try {
@@ -479,8 +472,6 @@ function stopVideo(){
       }
     } catch(e){}
   });
-  
-  // DOM থেকে ক্লিয়ার করা (সাউন্ড সম্পূর্ণ বন্ধ হবে)
   va.innerHTML = "";
 }
 
@@ -541,7 +532,7 @@ function buildVideoPoster(ep){
   const epNum = String(ep.episodeNumber || 1).padStart(2, "0");
   return `
     <div class="video-poster" id="videoPoster">
-      <img src="${safe(poster)}" alt="Episode preview" onerror="this.onerror=null;this.src='${fallback}'">
+      <img src="${safe(poster)}" alt="Episode preview" onerror="this.onerror=null;this.src='${fallback}'" decoding="async">
       <span class="video-badge-ad">AD</span>
       <button class="big-play" id="playBtn" aria-label="Play Episode">▶</button>
       <div class="video-label">EP ${epNum} · ${safe(selectedLangName)}</div>
@@ -611,7 +602,7 @@ function renderGrid(){
   $("#dramas").innerHTML=list.length?list.map(d=>`
     <article class="card" data-id="${safe(d.id)}">
       <div class="poster">
-        <img loading="lazy" src="${safe(d.poster||fallback)}" alt="${safe(d.title)} poster" onerror="this.onerror=null;this.src='${fallback}'">
+        <img loading="lazy" decoding="async" src="${safe(d.poster||fallback)}" alt="${safe(d.title)} poster" onerror="this.onerror=null;this.src='${fallback}'">
         <span>${safe(d.status||"K-Drama")}</span>
         <div class="hoverplay">▶</div>
       </div>
@@ -628,68 +619,161 @@ function episodesOf(s){return [...(s?.episodes||[])].sort((a,b)=>Number(a.episod
 
 function isPub(obj){
   if(!obj) return false;
-  const v = obj.published ?? obj.isPublished ?? obj.is_published ?? obj.publish ?? obj.active ?? obj.visible ?? obj.enable;
+  const v = obj.published ?? obj.isPublished ?? obj.is_published
+         ?? obj.publish ?? obj.active ?? obj.visible ?? obj.enable;
+
   if(v !== undefined && v !== null && v !== ''){
-    if(v === false || v === 0) return false;
+    if(v === false || v === 0 || v === '0' || v === 'false') return false;
     const sv = String(v).toLowerCase().trim();
-    if(['0','false','no','draft','unpublished','private','hidden','pending','disabled','inactive'].includes(sv)) return false;
+    if(['0','false','no','draft','unpublished','private','hidden',
+        'pending','disabled','inactive'].includes(sv)) return false;
   }
+
   const st = obj.status;
-  if(typeof st === 'string' && ['draft','unpublished','private','hidden','pending','disabled','inactive'].includes(st.toLowerCase().trim())) return false;
+  if(typeof st === 'string' &&
+     ['draft','unpublished','private','hidden','pending','disabled','inactive']
+       .includes(st.toLowerCase().trim())) return false;
+
   return true;
+}
+
+function normalizeLangName(name){
+  if(!name) return 'Original';
+  const s = String(name).trim();
+  if(!s) return 'Original';
+  const lower = s.toLowerCase();
+
+  const map = {
+    'original':'Original','orig':'Original','kor':'Original','korean':'Original',
+    'hindi':'Hindi','hin':'Hindi',
+    'tamil':'Tamil','tam':'Tamil',
+    'telugu':'Telugu','tel':'Telugu',
+    'english':'English','eng':'English',
+    'malayalam':'Malayalam','mal':'Malayalam',
+    'bengali':'Bengali','ben':'Bengali','bangla':'Bengali',
+    'urdu':'Urdu','urd':'Urdu',
+    'japanese':'Japanese','jpn':'Japanese','jap':'Japanese',
+    'chinese':'Chinese','chi':'Chinese',
+    'thai':'Thai','arabic':'Arabic',
+    'dub':'Dub','sub':'Sub'
+  };
+  if(map[lower]) return map[lower];
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function loadSources(ep) {
   if (!ep) return [];
-  let list = [];
-  const sourceKeys = ['sources','videos','streams','links','servers','mirrors','dubs','dub','audios','audio','tracks','files','qualities','video','iframe','embed','player','source'];
-  for (const key of sourceKeys) {
-    if (ep[key]) {
-      let raw = ep[key];
-      if (Array.isArray(raw)) {
-        list.push(...raw.map(s => ({ ...s, langKey: key })));
-      } else if (typeof raw === 'string') {
-        list.push({ embedUrl: raw, language: key === 'dubs' || key === 'dub' ? 'Dub' : 'Original' });
-      } else if (typeof raw === 'object') {
-        Object.entries(raw).forEach(([id, s]) => {
-          if (typeof s === 'string') {
-             const isLang = ['hindi','tamil','telugu','english','korean','malayalam','bengali','urdu','original','dub'].some(l => id.toLowerCase().includes(l));
-             list.push({ id, embedUrl: s, language: isLang ? id : 'Original' });
-          } else if (s && typeof s === 'object') {
-             let nestedUrl = s.embedUrl ?? s.videoUrl ?? s.iframeUrl ?? s.url ?? s.link ?? s.src ?? s.embed ?? s.stream ?? s.file ?? s.iframe ?? s.href ?? s.path;
-             if (!nestedUrl) {
-                for (let k in s) {
-                   if (typeof s[k] === 'string' && s[k].startsWith('http')) { nestedUrl = s[k]; break; }
-                }
-             }
-             list.push({ id, ...s, language: s.label || s.language || s.dubLanguage || s.lang || s.audio || id, embedUrl: nestedUrl });
-          }
-        });
-      }
+  const list = [];
+  const seen = new Set();
+
+  const addSource = (language, url) => {
+    if (!url) return;
+    url = String(url).trim();
+    if (!url) return;
+    const lang = normalizeLangName(language);
+    const key = lang.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    list.push({ language: lang, embedUrl: url });
+  };
+
+  const getUrl = (s) => {
+    if (typeof s === 'string') return s;
+    if (!s || typeof s !== 'object') return '';
+    let url = s.embedUrl ?? s.videoUrl ?? s.iframeUrl ?? s.url ?? s.link
+           ?? s.src ?? s.embed ?? s.stream ?? s.file ?? s.iframe
+           ?? s.href ?? s.path ?? s.video_url ?? s.embed_url
+           ?? s.playUrl ?? s.play_url ?? s.dubUrl ?? s.dub_url;
+    if (url && typeof url === 'object') {
+      url = url.url ?? url.link ?? url.src ?? url.href ?? url.path ?? '';
+    }
+    return url || '';
+  };
+
+  const LANG_HINTS = ['hindi','tamil','telugu','english','korean','malayalam',
+                      'bengali','urdu','original','japanese','chinese','thai','arabic'];
+
+  const dubData = ep.dubs ?? ep.dub;
+  if (dubData) {
+    if (Array.isArray(dubData)) {
+      dubData.forEach(item => {
+        if (!item) return;
+        if (typeof item === 'string') {
+          addSource('Original', item);
+        } else if (typeof item === 'object') {
+          if (!isPub(item)) return;
+          const lang = item.language || item.label || item.lang
+                     || item.audio || item.name || 'Original';
+          addSource(lang, getUrl(item));
+        }
+      });
+    } else if (typeof dubData === 'object') {
+      Object.entries(dubData).forEach(([langKey, data]) => {
+        if (!data) return;
+        if (typeof data === 'string') {
+          addSource(langKey, data);
+        } else if (typeof data === 'object') {
+          if (!isPub(data)) return;
+          const lang = data.language || data.label || data.lang
+                     || data.audio || data.name || langKey;
+          addSource(lang, getUrl(data));
+        }
+      });
     }
   }
+
+  const sourceKeys = ['sources','videos','streams','links','servers','mirrors',
+                      'audios','audio','tracks','files','qualities'];
+  sourceKeys.forEach(key => {
+    if (!ep[key]) return;
+    const raw = ep[key];
+
+    if (Array.isArray(raw)) {
+      raw.forEach(s => {
+        if (!s) return;
+        if (typeof s === 'string') { addSource('Original', s); return; }
+        if (typeof s === 'object') {
+          if (!isPub(s)) return;
+          const lang = s.language || s.label || s.lang
+                     || s.audio || s.name || 'Original';
+          addSource(lang, getUrl(s));
+        }
+      });
+    } else if (typeof raw === 'object') {
+      Object.entries(raw).forEach(([id, s]) => {
+        if (!s) return;
+        if (typeof s === 'string') {
+          const isLang = LANG_HINTS.some(l => id.toLowerCase().includes(l));
+          addSource(isLang ? id : 'Original', s);
+        } else if (typeof s === 'object') {
+          if (!isPub(s)) return;
+          const isLang = LANG_HINTS.some(l => id.toLowerCase().includes(l));
+          const lang = s.language || s.label || s.lang
+                     || s.audio || s.name || (isLang ? id : 'Original');
+          addSource(lang, getUrl(s));
+        }
+      });
+    } else if (typeof raw === 'string') {
+      addSource('Original', raw);
+    }
+  });
+
   if (list.length === 0) {
-    const direct = ep.embedUrl ?? ep.videoUrl ?? ep.iframeUrl ?? ep.url ?? ep.link ?? ep.src ?? ep.stream ?? ep.file ?? ep.iframe ?? ep.player ?? ep.watch ?? ep.dub ?? ep.audio ?? ep.server ?? ep.video_url ?? ep.embed_url;
-    if (typeof direct === 'string' && direct.startsWith('http')) {
-      list.push({ embedUrl: direct, language: ep.language || ep.dubLanguage || ep.lang || ep.audio || 'Original' });
+    const direct = ep.embedUrl ?? ep.videoUrl ?? ep.iframeUrl ?? ep.url
+                 ?? ep.link ?? ep.src ?? ep.stream ?? ep.file ?? ep.iframe
+                 ?? ep.player ?? ep.video_url ?? ep.embed_url;
+    if (typeof direct === 'string') {
+      addSource(ep.language || ep.lang || 'Original', direct);
     }
   }
-  const normalized = list.map(s => {
-    if (typeof s === 'string') return { language: 'Original', embedUrl: s };
-    let url = s.embedUrl ?? s.videoUrl ?? s.iframeUrl ?? s.url ?? s.link ?? s.src ?? s.embed ?? s.stream ?? s.file ?? s.iframe ?? s.href ?? s.path ?? '';
-    if (typeof url === 'object' && url !== null) {
-      url = url.url ?? url.link ?? url.src ?? url.embed ?? url.href ?? url.path ?? '';
-      if (typeof url === 'object') {
-        url = Object.values(url).find(v => typeof v === 'string' && v.startsWith('http')) || '';
-      }
-    }
-    const language = s.label || s.language || s.dubLanguage || s.lang || s.audio || s.name || s.title || 'Original';
-    return { ...s, language, embedUrl: String(url).trim() };
+
+  list.sort((a,b) => {
+    if (a.language === 'Original' && b.language !== 'Original') return -1;
+    if (b.language === 'Original' && a.language !== 'Original') return  1;
+    return a.language.localeCompare(b.language);
   });
-  return normalized.sort((a, b) => {
-    const r = l => String(l).toLowerCase().includes('orig') || String(l).toLowerCase().includes('kor') ? 0 : 1;
-    return r(a.language) - r(b.language);
-  });
+
+  return list;
 }
 
 function loadEpisodes(data) {
@@ -716,6 +800,7 @@ function player(ep, src) {
     let url = src?.embedUrl || "";
     if (typeof url === 'object' && url !== null) url = url.url || url.link || url.src || "";
     url = String(url).trim();
+    
     if (!url) return `<div class="placeholder"><strong>▶ ${safe(ep.title || "Episode " + (ep.episodeNumber || ""))}</strong><p>No video URL added.</p><small>Admin Panel-এ ভিডিও লিংক দেওয়া হয়নি।</small></div>`;
     try {
         let finalUrl = url;
@@ -723,8 +808,9 @@ function player(ep, src) {
             const match = url.match(/src=["'](.*?)["']/i);
             if (match && match[1]) finalUrl = match[1];
         }
-        // ✅ loading="lazy" সরানো হয়েছে এবং referrerpolicy="origin" করা হয়েছে যাতে ভিডিও ব্লক না হয়
-        return `<iframe class="player" src="${safe(finalUrl)}" title="${safe(ep.title || "Video player")}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="origin"></iframe>`;
+        
+        // ✅ referrerpolicy="no-referrer" যোগ করা হয়েছে যাতে ardance.org এর মত সাইট ব্লক না করে
+        return `<iframe class="player" src="${safe(finalUrl)}" title="${safe(ep.title || "Video player")}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="no-referrer"></iframe>`;
     } catch {
         return '<div class="placeholder">Invalid video embed URL.</div>';
     }
@@ -762,7 +848,6 @@ function renderDetail() {
     const d = selected;
     if (!d) return;
 
-    // ✅ নতুন এপিসোড/ল্যাঙ্গুয়েজ সিলেক্ট করার আগে আগের চলমান ভিডিও বন্ধ করা
     stopVideo();
 
     const ss = seasonsOf(d);
@@ -776,16 +861,21 @@ function renderDetail() {
             if (src.language) allLangs.add(src.language);
         });
     });
-    const langList = Array.from(allLangs);
-    if (langList.length === 0) langList.push("Original");
+
+    const langList = Array.from(allLangs).sort((a,b) => {
+        if (a === 'Original') return -1;
+        if (b === 'Original') return  1;
+        return a.localeCompare(b);
+    });
+    if (langList.length === 0) langList.push('Original');
 
     if (!selectedLangName || !langList.includes(selectedLangName)) {
         selectedLangName = langList[0];
     }
 
-    const eps = allEps.filter(ep => {
-        return loadSources(ep).some(s => s.language === selectedLangName);
-    });
+    const eps = allEps.filter(ep =>
+        loadSources(ep).some(s => s.language === selectedLangName)
+    );
 
     if (episodeIndex >= eps.length) episodeIndex = 0;
     const ep = eps[episodeIndex];
@@ -856,7 +946,7 @@ function renderDetail() {
             <div class="foryou-grid">
                 ${forYou.map(x => `
                     <div class="fy-card" data-fyid="${safe(x.id)}">
-                        <div class="fy-poster"><img loading="lazy" src="${safe(x.poster || fallback)}" onerror="this.onerror=null;this.src='${fallback}'" alt="${safe(x.title)}"></div>
+                        <div class="fy-poster"><img loading="lazy" decoding="async" src="${safe(x.poster || fallback)}" onerror="this.onerror=null;this.src='${fallback}'" alt="${safe(x.title)}"></div>
                         <div class="fy-title">${safe(x.title)}</div>
                     </div>
                 `).join('') || '<div class="muted">No recommendations yet.</div>'}
@@ -893,9 +983,7 @@ function renderDetail() {
 }
 
 function openDrama(id){
- // ✅ নতুন ড্রামা খোলার আগে পূর্বের চলমান ভিডিও বন্ধ
  stopVideo();
-
  selected=dramas.find(d=>d.id===id);
  if(!selected)return;
  seasonIndex=0;episodeIndex=0;
@@ -907,12 +995,11 @@ function openDrama(id){
  $("#modal").scrollTop=0;
 }
 
-/* ✅ FIXED: মডাল বন্ধ হলে ভিডিও সম্পূর্ণ destroy হবে, কিন্তু নতুন ভিডিও প্লে করতে কোনো সমস্যা হবে না */
 function closeModal(){
   cancelPreroll();
-  stopVideo();                       // চলমান ভিডিও + iframe বন্ধ
+  stopVideo();
   const detail = document.getElementById("detail");
-  if(detail) detail.innerHTML = "";  // innerHTML clear → কোনো লিক নেই
+  if(detail) detail.innerHTML = "";
   $("#modal").classList.add("hidden");
   document.body.style.overflow="";
 }
@@ -921,7 +1008,6 @@ $("#close").addEventListener("click",closeModal);
 $("#modal").addEventListener("click",e=>{if(e.target===$("#modal"))closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==="Escape"){closeModal();cancelPreroll();}});
 
-/* ✅ ট্যাব/অ্যাপ hidden হলে native media pause হবে (অডিও লিক রোধে) */
 document.addEventListener("visibilitychange", () => {
   if(document.hidden){
     document.querySelectorAll("#videoArea video, #videoArea audio, #detail video, #detail audio").forEach(m => {
@@ -930,11 +1016,18 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-/* ✅ পেজ unload হলে সব বন্ধ হবে */
 window.addEventListener("pagehide", stopVideo);
 window.addEventListener("beforeunload", stopVideo);
 
-$("#search").addEventListener("input",e=>{ searchText=e.target.value.trim(); renderGrid(); });
+// ✅ Search Debounce (Fast Load & No Lag)
+$("#search").addEventListener("input", (e) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    searchText = e.target.value.trim();
+    renderGrid();
+  }, 300); // 300ms wait
+});
+
 $("#genres").querySelectorAll("[data-genre]").forEach(b=>b.addEventListener("click",()=>{
  genre=b.dataset.genre;
  $("#genres").querySelectorAll(".chip").forEach(c=>c.classList.toggle("active",c===b));
@@ -942,7 +1035,6 @@ $("#genres").querySelectorAll("[data-genre]").forEach(b=>b.addEventListener("cli
 }));
 
 async function start(){
- if(DEMO_MODE){ dramas=demo.map(normalize); render(); return; }
  try{
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
