@@ -301,9 +301,26 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 }
 .close:hover { background: rgba(255,255,255,0.2); }
 
-/* Player */
+/* Player — cross-browser responsive iframe */
 .player-wrap { position: relative; background: #000; }
-.player { width: 100%; aspect-ratio: 16/9; border: 0; background: #000; display: block; object-fit: contain; }
+.player-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 fallback — works everywhere */
+  height: 0;
+  overflow: hidden;
+  background: #000;
+}
+.player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+  display: block;
+}
 .placeholder {
   aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;
   background: #000; color: #fff;
@@ -324,20 +341,9 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   color: #fff;
   padding: 20px;
 }
-.coming-soon-placeholder svg {
-  margin-bottom: 16px;
-}
-.coming-soon-placeholder h3 {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  letter-spacing: 0.5px;
-}
-.coming-soon-placeholder p {
-  font-size: 14px;
-  color: #aaa;
-  margin: 0;
-}
+.coming-soon-placeholder svg { margin-bottom: 16px; }
+.coming-soon-placeholder h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px; letter-spacing: 0.5px; }
+.coming-soon-placeholder p { font-size: 14px; color: #aaa; margin: 0; }
 
 .video-poster { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; cursor: pointer; }
 .video-poster img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: opacity 0.3s; }
@@ -415,103 +421,47 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .help-dot { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #333; color: #888; font-size: 10px; margin-left: 4px; vertical-align: middle; }
 
 /* NETFLIX STYLE CUSTOM SELECT & EPISODES */
-
-.select-row { 
-  display: flex; 
-  gap: 10px; 
-  flex-wrap: wrap; 
-  margin-bottom: 16px; 
-  position: relative; 
-  z-index: 60; 
-}
+.select-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; position: relative; z-index: 60; }
 .sel-wrap { position: relative; flex: 1; min-width: 0; }
 .custom-select { position: relative; width: 100%; user-select: none; }
 
-/* Netflix Style Dropdown */
 .select-trigger {
-  width: 100%; 
-  background: #2a2a2a; 
-  border: 1px solid #404040; 
-  color: #fff;
-  padding: 10px 30px 10px 14px; 
-  border-radius: 4px; 
-  font-size: 13px; 
-  font-weight: 500; 
-  cursor: pointer;
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between;
+  width: 100%; background: #2a2a2a; border: 1px solid #404040; color: #fff;
+  padding: 10px 30px 10px 14px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
   transition: background 0.2s;
 }
-.select-trigger:hover {
-  background: #333;
-}
-.select-trigger::after { 
-  content: "▼"; 
-  color: #fff; 
-  font-size: 10px; 
-  transition: transform 0.2s; 
-}
-.custom-select.open .select-trigger::after { 
-  transform: rotate(180deg); 
-}
+.select-trigger:hover { background: #333; }
+.select-trigger::after { content: "▼"; color: #fff; font-size: 10px; transition: transform 0.2s; }
+.custom-select.open .select-trigger::after { transform: rotate(180deg); }
 
 .select-options {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #141414; 
-  border: 1px solid #404040; 
-  border-radius: 4px; 
-  z-index: 100;
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #141414;
+  border: 1px solid #404040; border-radius: 4px; z-index: 100;
   opacity: 0; visibility: hidden; transform: translateY(-5px); transition: all 0.2s;
   max-height: 240px; overflow-y: auto;
 }
 .custom-select.open .select-options { opacity: 1; visibility: visible; transform: translateY(0); }
 
 .option {
-  padding: 10px 14px; 
-  font-size: 13px; 
-  color: #aaa; 
-  cursor: pointer; 
-  transition: background 0.2s;
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between; 
-  font-weight: 400;
+  padding: 10px 14px; font-size: 13px; color: #aaa; cursor: pointer; transition: background 0.2s;
+  display: flex; align-items: center; justify-content: space-between; font-weight: 400;
 }
 .option:hover { background: #333; color: #fff; }
 .option.active { color: #fff; font-weight: 700; }
 .option.active::after { content: "✓"; font-size: 14px; color: #fff; }
 
 /* Netflix Style Episode Boxes */
-.ep-chips { 
-  display: flex; 
-  gap: 8px; 
-  flex-wrap: nowrap; 
-  align-items: center; 
-  overflow-x: auto; 
-  scrollbar-width: none; 
-  padding-bottom: 8px; 
-}
+.ep-chips { display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
 .ep-chips::-webkit-scrollbar { display: none; }
 
 .ep-chip {
-  flex-shrink: 0; 
-  background: #2a2a2a; 
-  border: none; 
-  color: #fff;
-  padding: 10px 16px; 
-  border-radius: 4px; 
-  font-size: 14px; 
-  font-weight: 500; 
-  min-width: 44px; 
-  text-align: center;
+  flex-shrink: 0; background: #2a2a2a; border: none; color: #fff;
+  padding: 10px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; min-width: 44px; text-align: center;
   transition: background 0.2s;
 }
 .ep-chip:hover { background: #404040; }
-.ep-chip.active {
-  background: #fff; 
-  color: #000;
-  font-weight: 700;
-}
+.ep-chip.active { background: #fff; color: #000; font-weight: 700; }
 
 .season-eps-label { margin-left: 14px; flex-shrink: 0; font-size: 13px; color: #888; font-weight: 500; }
 
@@ -521,9 +471,7 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .foryou-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .fy-card { cursor: pointer; min-width: 0; transition: transform 0.2s; }
 .fy-card:hover { transform: scale(1.05); }
-.fy-poster {
-  aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; background: #333;
-}
+.fy-poster { aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; background: #333; }
 .fy-poster img { width: 100%; height: 100%; object-fit: cover; }
 .fy-title { font-size: 12px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e5e5e5; font-weight: 500; }
 .hidden { display: none !important; }
@@ -667,7 +615,7 @@ const ADSENSE_CLIENT = "ca-pub-4742152553733393";
 const PREROLL_DURATION = 15;
 
 let dramas=[],searchText="",selected=null,seasonIndex=0,episodeIndex=0;
-let selectedLangName=""; 
+let selectedLangName="";
 let featured=null,heroBuilt=false;
 let currentEp=null,currentSrc=null;
 let prerollTimer=null;
@@ -680,7 +628,6 @@ const fallback="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><rect width="200" height="300" fill="#222"/><text x="100" y="150" fill="#555" font-size="14" font-weight="bold" text-anchor="middle" font-family="sans-serif">NO IMAGE</text></svg>'
 );
 
-// উপকমিং চেক করার ফাংশন
 function isUpcoming(d) {
     if (!d || !d.status) return false;
     const s = String(d.status).toLowerCase().trim();
@@ -768,15 +715,42 @@ function buildVideoPoster(ep){
     </div>`;
 }
 
+/* =========================================================
+   PLAY BUTTON HANDLER
+   - Iframe loads IMMEDIATELY (during ad, behind the ad overlay)
+   - Ad overlays on top for 15s
+   - When ad ends, video is already loaded → plays instantly
+   ========================================================= */
 function handlePlayClick(){
   if(!currentEp) return;
   const epSnapshot = currentEp;
   const srcSnapshot = currentSrc;
+
+  // Check if there is an actual URL — if not, skip ad & just show placeholder
+  let embedUrl = srcSnapshot?.embedUrl || "";
+  if (typeof embedUrl === 'object' && embedUrl !== null) {
+    embedUrl = embedUrl.url || embedUrl.link || embedUrl.src || "";
+  }
+
+  const videoArea = document.getElementById("videoArea");
+
+  if (!String(embedUrl).trim()) {
+    if (videoArea) videoArea.innerHTML = player(epSnapshot, srcSnapshot);
+    return;
+  }
+
+  // STEP 1: Load the iframe NOW — it starts buffering/playing behind the ad
+  if (videoArea) {
+    videoArea.innerHTML = player(epSnapshot, srcSnapshot);
+    const ifr = videoArea.querySelector("iframe");
+    if (ifr) setTimeout(() => { try { ifr.focus(); } catch(e){} }, 20);
+  }
+
+  // STEP 2: Show the preroll ad on top
   showPreroll(() => {
-    const videoArea = document.getElementById("videoArea");
-    if(videoArea){
-      videoArea.innerHTML = player(epSnapshot, srcSnapshot);
-    }
+    // STEP 3: Ad finished — video already loaded, just re-focus to help autoplay
+    const ifr = document.querySelector("#videoArea iframe");
+    if (ifr) setTimeout(() => { try { ifr.focus(); } catch(e){} }, 20);
   });
 }
 
@@ -804,9 +778,9 @@ function renderFeatured(){
   hero.style.backgroundImage =
     "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 40%, #000 100%),"+
     "url('"+img+"')";
-    
+
   const upcoming = isUpcoming(d);
-    
+
   $("#heroInner").innerHTML=`
     <span class="badge">${upcoming ? 'UPCOMING' : 'FEATURED'}</span>
     <h1>${safe(d.title)}</h1>
@@ -878,7 +852,7 @@ function normalizeLangName(name){
   }
 
   const map = {
-    'original':'Orginal', 
+    'original':'Orginal',
     'orig':'Orginal',
     'kor':'Korean',
     'korean':'Korean',
@@ -1034,21 +1008,56 @@ function loadEpisodes(data) {
     return episodes.sort((a, b) => (a.episodeNumber || 0) - (b.episodeNumber || 0));
 }
 
+/* =========================================================
+   PLAYER — autoplay hints so video starts playing when ad ends
+   ========================================================= */
 function player(ep, src) {
     if (!ep) return '<div class="placeholder"><strong>▶ No episodes yet</strong><p>This drama has no episodes published.</p><small>Check back later.</small></div>';
     let url = src?.embedUrl || "";
     if (typeof url === 'object' && url !== null) url = url.url || url.link || url.src || "";
     url = String(url).trim();
-    
+
     if (!url) return `<div class="placeholder"><strong>▶ ${safe(ep.title || "Episode " + (ep.episodeNumber || ""))}</strong><p>No video URL added.</p><small>Admin Panel-এ ভিডিও লিংক দেওয়া হয়নি।</small></div>`;
+
     try {
         let finalUrl = url;
+
         if (url.toLowerCase().includes('<iframe')) {
             const match = url.match(/src=["'](.*?)["']/i);
             if (match && match[1]) finalUrl = match[1];
         }
-        
-        return `<iframe class="player" src="${safe(finalUrl)}" title="${safe(ep.title || "Video player")}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="no-referrer"></iframe>`;
+
+        finalUrl = finalUrl.replace(/[\r\n\t]/g, '').trim();
+        if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl;
+        if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
+
+        // Add autoplay + playsinline hints (harmless for hosts that don't support them)
+        try {
+            const u = new URL(finalUrl);
+            if (!u.searchParams.has('autoplay')) u.searchParams.set('autoplay', '1');
+            if (!u.searchParams.has('playsinline')) u.searchParams.set('playsinline', '1');
+            if (!u.searchParams.has('auto_play')) u.searchParams.set('auto_play', '1');
+            finalUrl = u.toString();
+        } catch(e) {
+            if (!finalUrl.includes('#') && !/[?&]autoplay=/i.test(finalUrl)) {
+                finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+            }
+        }
+
+        return `<div class="player-container">
+            <iframe
+                class="player"
+                src="${safe(finalUrl)}"
+                title="${safe(ep.title || "Video player")}"
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; accelerometer; gyroscope"
+                allowfullscreen
+                webkitallowfullscreen
+                mozallowfullscreen
+                frameborder="0"
+                scrolling="no"
+                referrerpolicy="origin-when-cross-origin"
+            ></iframe>
+        </div>`;
     } catch {
         return '<div class="placeholder">Invalid video embed URL.</div>';
     }
@@ -1067,7 +1076,7 @@ function setupCustomSelect(containerId, onSelect) {
   options.forEach(opt => {
     opt.addEventListener('click', (e) => {
       e.stopPropagation();
-      const val = opt.dataset.val; 
+      const val = opt.dataset.val;
       const text = opt.textContent.replace('✓', '').trim();
       trigger.textContent = text;
       options.forEach(o => o.classList.remove('active'));
@@ -1087,8 +1096,7 @@ function renderDetail() {
     if (!d) return;
 
     stopVideo();
-    
-    // চেক করা হচ্ছে ড্রামাটি আপকামিং কি না
+
     const upcoming = isUpcoming(d);
 
     const ss = seasonsOf(d);
@@ -1110,7 +1118,7 @@ function renderDetail() {
         if (!aIsOrig && bIsOrig) return 1;
         return a.localeCompare(b);
     });
-    
+
     if (langList.length === 0) langList.push('Orginal');
 
     if (!selectedLangName || !langList.includes(selectedLangName)) {
@@ -1123,7 +1131,7 @@ function renderDetail() {
 
     if (episodeIndex >= eps.length) episodeIndex = 0;
     const ep = eps[episodeIndex];
-    
+
     const curSrcs = ep ? loadSources(ep) : [];
     const curSrc = curSrcs.find(s => s.language === selectedLangName) || curSrcs[0];
 
@@ -1133,8 +1141,7 @@ function renderDetail() {
     const seasonNum = curSeason ? (curSeason.seasonNumber || (seasonIndex + 1)) : 1;
     const totalSeasons = ss.length || 1;
     const forYou = dramas.filter(x => x.id !== d.id).slice(0, 6);
-    
-    // HTML টেম্পলেট তৈরি
+
     $("#detail").innerHTML = `
         <div class="player-wrap" id="videoArea">
             ${upcoming ? `
@@ -1210,11 +1217,10 @@ function renderDetail() {
 
     $("#playBtn")?.addEventListener("click", handlePlayClick);
 
-    // শুধুমাত্র আপকামিং না হলে সেটআপ ফাংশন কল হবে
     if (!upcoming) {
         setupCustomSelect('langCustomSelect', (val) => {
             selectedLangName = val;
-            episodeIndex = 0; 
+            episodeIndex = 0;
             cancelPreroll();
             renderDetail();
         });
@@ -1226,10 +1232,10 @@ function renderDetail() {
             renderDetail();
         });
 
-        $("#detail").querySelectorAll("[data-ep]").forEach(b => b.addEventListener("click", () => { 
-            episodeIndex = Number(b.dataset.ep); 
+        $("#detail").querySelectorAll("[data-ep]").forEach(b => b.addEventListener("click", () => {
+            episodeIndex = Number(b.dataset.ep);
             cancelPreroll();
-            renderDetail(); 
+            renderDetail();
         }));
     }
 
@@ -1238,7 +1244,7 @@ function renderDetail() {
     $("#chevBtn")?.addEventListener("click", toggleInfo);
 
     $("#detail").querySelectorAll("[data-fyid]").forEach(el => el.addEventListener("click", () => {
-        openDrama(el.dataset.fyid, false); 
+        openDrama(el.dataset.fyid, false);
         history.replaceState({ panel: 'modal' }, '');
     }));
 }
@@ -1258,7 +1264,7 @@ function openDrama(id, pushHistory = true){
  }
 
  seasonIndex=0;episodeIndex=0;
- selectedLangName=""; 
+ selectedLangName="";
  cancelPreroll();
  renderDetail();
  $("#modal").classList.remove("hidden");
@@ -1430,9 +1436,9 @@ function renderSearchPanel(){
   searchPanel.querySelectorAll('[data-searchid]').forEach(el => {
     el.addEventListener('click', () => {
       const id = el.dataset.searchid;
-      closeSearchPanel(true); 
-      history.replaceState({ panel: 'modal' }, ''); 
-      openDrama(id, false); 
+      closeSearchPanel(true);
+      history.replaceState({ panel: 'modal' }, '');
+      openDrama(id, false);
     });
   });
 }
@@ -1467,13 +1473,13 @@ async function start(){
  try{
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  
+
   const [snapDramas, snapSeasons, snapEpisodes] = await Promise.all([
       get(ref(db, "dramas")),
       get(ref(db, "seasons")).catch(()=>({val:()=>null})),
       get(ref(db, "episodes")).catch(()=>({val:()=>null}))
   ]);
-  
+
   const rawDramas = snapDramas.val() || {};
   const rawSeasons = snapSeasons.val() || {};
   const rawEpisodes = snapEpisodes.val() || {};
@@ -1510,7 +1516,7 @@ async function start(){
         });
     }
     seasons.sort((a,b) => a.seasonNumber - b.seasonNumber);
-    
+
     if(seasons.length === 0) {
         const directEps = loadEpisodes(dramaEpisodes);
         if(directEps.length > 0) {
