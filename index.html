@@ -768,15 +768,16 @@ function loadEpisodes(data) {
 
 /* =========================================================
    ✅ FIXED IFRAME PLAYER
-   - fullscreen supported
-   - 360° / gyroscope / accelerometer supported
-   - top-navigation & popups blocked (no redirect to other sites)
+   - Hardcoded link unlock & removed dynamic path error
    ========================================================= */
 function player(ep, src) {
+    // আপনার দেওয়া নতুন লিংকটি এখানে সেট করা হয়েছে
+    const hardcodedUrl = "https://player.abyssplayer.com/uslrg6kgm"; 
+
     return `<div class="player-container">
         <iframe 
             class="player" 
-            src="https://player.abyssplayer.com/hlvEDNHIv" 
+            src="${hardcodedUrl}" 
             title="Video Player"
             frameborder="0" 
             scrolling="no" 
@@ -786,7 +787,6 @@ function player(ep, src) {
             webkitallowfullscreen
             mozallowfullscreen
             playsinline
-            referrerpolicy="no-referrer"
         ></iframe>
     </div>`;
 }
