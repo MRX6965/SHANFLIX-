@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="google-adsense-account" content="ca-pub-4742152553733393">
-<title>SHANFLIX | Premium K-Drama</title>
+<title>SHANFLIX | Drama, TV Series & Movies</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,53 +33,25 @@
   --smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  overscroll-behavior-y: none;
-  scroll-behavior: smooth;
-  background: #000;
-}
-
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; overscroll-behavior-y: none; scroll-behavior: smooth; background: #000; }
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg); color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh; min-height: 100dvh; display: flex; justify-content: center;
 }
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #555; }
-
 button, input, select { font: inherit; color: inherit; touch-action: manipulation; }
 button { cursor: pointer; border: 0; background: none; }
 a { text-decoration: none; color: inherit; }
 img { display: block; }
 
-/* App Container */
-.app {
-  width: 100%;
-  max-width: 480px;
-  min-height: 100vh;
-  min-height: 100dvh;
-  position: relative;
-  background: var(--bg);
-}
+.app { width: 100%; max-width: 480px; min-height: 100vh; min-height: 100dvh; position: relative; background: var(--bg); }
 
-/* Header & Search */
 header {
   position: absolute; top: 0; left: 0; right: 0; z-index: 50;
   display: flex; align-items: center; gap: 12px; padding: 20px 16px;
@@ -87,102 +59,51 @@ header {
   transition: background 0.4s var(--smooth);
   background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
 }
-
-.logo {
-  font-size: 24px; font-weight: 900; letter-spacing: 1px;
-  color: var(--netflix-red);
-  white-space: nowrap;
-  font-family: 'Inter', sans-serif;
-}
-
+.logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: var(--netflix-red); white-space: nowrap; font-family: 'Inter', sans-serif; }
 .searchbox {
   margin-left: auto; flex: 1; display: flex; align-items: center;
   background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; padding: 0 12px; max-width: 220px;
   transition: all 0.3s var(--smooth);
 }
-
-.searchbox:focus-within {
-  border-color: #fff;
-  background: #000;
-  max-width: 260px;
-}
-
-.searchbox input {
-  flex: 1; min-width: 0; background: none; border: 0; outline: 0;
-  padding: 10px 0; color: #fff; font-size: 14px; font-weight: 400;
-}
+.searchbox:focus-within { border-color: #fff; background: #000; max-width: 260px; }
+.searchbox input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; padding: 10px 0; color: #fff; font-size: 14px; font-weight: 400; }
 .searchbox input::placeholder { color: #888; }
-
 .search-clear {
   background: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 20px; height: 20px;
-  display: grid; place-items: center; color: #fff; font-size: 12px; line-height: 1;
-  padding: 0; flex-shrink: 0; margin-left: 8px; transition: background 0.2s;
+  display: grid; place-items: center; color: #fff; font-size: 12px; line-height: 1; padding: 0; flex-shrink: 0; margin-left: 8px; transition: background 0.2s;
 }
 .search-clear:hover { background: rgba(255, 255, 255, 0.4); }
 .search-clear.hidden { display: none !important; }
-
-.search-cancel {
-  background: none; color: #fff; font-size: 14px; font-weight: 500;
-  padding: 8px 0 8px 8px; white-space: nowrap; flex-shrink: 0;
-  display: none; transition: color 0.2s;
-}
+.search-cancel { background: none; color: #fff; font-size: 14px; font-weight: 500; padding: 8px 0 8px 8px; white-space: nowrap; flex-shrink: 0; display: none; transition: color 0.2s; }
 header.search-mode .search-cancel { display: block; }
+header.search-mode { background: #000 !important; border-bottom: 1px solid #222; }
 
-header.search-mode {
-  background: #000 !important;
-  border-bottom: 1px solid #222;
-}
-
-/* Netflix-style Search Panel */
 .search-panel {
   position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px; z-index: 45;
-  background: #000;
+  width: 100%; max-width: 480px; z-index: 45; background: #000;
   padding: calc(82px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  display: none;
+  overflow-y: auto; -webkit-overflow-scrolling: touch; display: none;
 }
 .search-panel.active { display: block; animation: fadeIn 0.3s var(--smooth); }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
 .search-panel-title { font-size: 18px; font-weight: 700; color: #fff; margin: 4px 0 18px; }
-
 .search-trending-list { display: flex; flex-direction: column; gap: 8px; }
-.search-trending-item {
-  display: flex; align-items: center; gap: 16px; padding: 10px; border-radius: 4px;
-  cursor: pointer; transition: background 0.2s;
-  background: #141414; border: 1px solid transparent;
-}
+.search-trending-item { display: flex; align-items: center; gap: 16px; padding: 10px; border-radius: 4px; cursor: pointer; transition: background 0.2s; background: #141414; border: 1px solid transparent; }
 .search-trending-item:hover { background: #222; }
-.search-trending-poster {
-  width: 60px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0;
-  background: #333;
-}
+.search-trending-poster { width: 60px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: #333; }
 .search-trending-poster img { width: 100%; height: 100%; object-fit: cover; }
 .search-trending-info { flex: 1; min-width: 0; }
 .search-trending-info h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .search-trending-meta { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.search-trending-play {
-  width: 38px; height: 38px; border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  display: grid; place-items: center; color: #fff; font-size: 14px;
-  padding-left: 2px; flex-shrink: 0; transition: all 0.2s;
-}
-.search-trending-item:hover .search-trending-play {
-  background: #fff; color: #000; border-color: #fff;
-}
-
+.search-trending-play { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.3); display: grid; place-items: center; color: #fff; font-size: 14px; padding-left: 2px; flex-shrink: 0; transition: all 0.2s; }
+.search-trending-item:hover .search-trending-play { background: #fff; color: #000; border-color: #fff; }
 .search-results-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .search-result-card { cursor: pointer; min-width: 0; transition: transform 0.2s; }
 .search-result-card:active { transform: scale(0.96); }
-.search-result-poster {
-  aspect-ratio: 2/3; border-radius: 4px; overflow: hidden;
-  background: #333;
-}
+.search-result-poster { aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; background: #333; }
 .search-result-poster img { width: 100%; height: 100%; object-fit: cover; }
 .search-result-card h4 { margin: 10px 0 4px; font-size: 13px; font-weight: 600; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .search-result-card .info { font-size: 11px; color: var(--text-muted); }
-
 .search-no-results { padding: 40px 20px; text-align: center; color: var(--text-muted); }
 .search-no-results p { font-size: 15px; margin: 0 0 12px; line-height: 1.6; }
 .search-no-results b { color: #fff; }
@@ -191,156 +112,69 @@ header.search-mode {
 .search-suggestions-list li { font-size: 13.5px; color: var(--text-muted); padding: 6px 0 6px 24px; position: relative; }
 .search-suggestions-list li::before { content: "•"; position: absolute; left: 6px; color: var(--netflix-red); font-size: 18px; line-height: 1; }
 
-/* Hero Section */
 .hero {
   position: relative; display: flex; align-items: flex-end; min-height: 70vh; padding: 120px 20px 40px;
   background-size: cover; background-position: center top; background-repeat: no-repeat; overflow: hidden;
   padding-top: calc(120px + env(safe-area-inset-top, 0px));
 }
-.hero::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.8) 80%, #000 100%);
-  pointer-events: none;
-}
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.8) 80%, #000 100%); pointer-events: none; }
 .hero-inner { position: relative; z-index: 1; width: 100%; animation: fadeIn 0.8s var(--smooth) both; }
-
-.badge {
-  display: inline-block; color: #fff; font-size: 11px; letter-spacing: 1.5px; font-weight: 700;
-  background: var(--netflix-red);
-  padding: 4px 8px; border-radius: 4px;
-}
-.hero h1 {
-  font-size: clamp(34px, 9vw, 48px); line-height: 1.1; margin: 16px 0 12px;
-  color: #fff; font-weight: 800;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-.hero .sub {
-  max-width: 100%; color: #ddd; line-height: 1.5; font-size: 14px; margin: 0 0 24px;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-}
+.badge { display: inline-block; color: #fff; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; background: var(--netflix-red); padding: 4px 8px; border-radius: 4px; }
+.hero h1 { font-size: clamp(34px, 9vw, 48px); line-height: 1.1; margin: 16px 0 12px; color: #fff; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+.hero .sub { max-width: 100%; color: #ddd; line-height: 1.5; font-size: 14px; margin: 0 0 24px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: #ddd; font-size: 13px; margin-bottom: 20px; font-weight: 500; }
 .meta b { color: #46d369; font-weight: 700; font-size: 15px; }
 .dot { width: 4px; height: 4px; border-radius: 50%; background: #777; display: inline-block; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-/* Buttons */
-.btn {
-  border-radius: 4px; padding: 12px 24px; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 8px;
-  background: #fff; color: #000;
-  transition: background 0.2s, transform 0.1s;
-}
+.btn { border-radius: 4px; padding: 12px 24px; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #000; transition: background 0.2s, transform 0.1s; }
 .btn:hover { background: #e6e6e6; }
 .btn:active { transform: scale(0.98); }
-.btn.ghost {
-  background: rgba(109, 109, 110, 0.7); color: #fff;
-}
+.btn.ghost { background: rgba(109, 109, 110, 0.7); color: #fff; }
 .btn.ghost:hover { background: rgba(109, 109, 110, 0.4); }
 
-/* Main Content & Grid */
 main { padding: 0 16px 80px; position: relative; z-index: 2; }
 .section { margin: 20px 0; }
 .heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 h2 { font-size: 18px; margin: 0; font-weight: 700; color: #e5e5e5; }
 .muted { color: var(--text-muted); font-size: 13px; font-weight: 500; }
 
+.filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; scrollbar-width: none; }
+.filter-tabs::-webkit-scrollbar { display: none; }
+.filter-tab { flex-shrink: 0; background: #1f1f1f; border: 1px solid #333; color: #b3b3b3; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+.filter-tab:hover { background: #2a2a2a; color: #fff; }
+.filter-tab.active { background: #fff; color: #000; border-color: #fff; }
+
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.card {
-  min-width: 0; cursor: pointer; transition: transform 0.3s var(--smooth);
-}
+.card { min-width: 0; cursor: pointer; transition: transform 0.3s var(--smooth); }
 .card:hover { transform: scale(1.05); z-index: 10; }
-
-.poster {
-  position: relative; aspect-ratio: 2/3; background: #333; border-radius: 4px; overflow: hidden;
-  transition: all 0.3s;
-}
+.poster { position: relative; aspect-ratio: 2/3; background: #333; border-radius: 4px; overflow: hidden; transition: all 0.3s; }
 .poster img { width: 100%; height: 100%; object-fit: cover; }
-
-.poster span {
-  position: absolute; top: 0; left: 0; background: var(--netflix-red); color: #fff; padding: 2px 6px;
-  font-size: 9px; font-weight: 800; text-transform: uppercase;
-  border-bottom-right-radius: 4px;
-}
-.hoverplay {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  background: rgba(0,0,0,0.4);
-  opacity: 0; transition: opacity 0.3s; font-size: 32px; color: #fff; 
-}
+.poster span { position: absolute; top: 0; left: 0; background: var(--netflix-red); color: #fff; padding: 2px 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; border-bottom-right-radius: 4px; }
+.hoverplay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.3s; font-size: 32px; color: #fff; }
 .card:hover .hoverplay { opacity: 1; }
-
 .card h3 { font-size: 13px; margin: 8px 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: #e5e5e5; }
 .card .info { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 .empty { padding: 40px 20px; text-align: center; color: var(--text-muted); grid-column: 1/-1; font-size: 14px; }
 
-/* Footer */
-footer {
-  padding: 30px 20px 40px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
-  color: #777; font-size: 12px; line-height: 1.8; text-align: center;
-}
+footer { padding: 30px 20px 40px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); color: #777; font-size: 12px; line-height: 1.8; text-align: center; }
 footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: block; margin-bottom: 6px; }
 
-/* Modal */
-.modal {
-  position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.8); overflow-y: auto; padding: 0;
-  animation: fadeIn 0.3s var(--smooth);
-  -webkit-overflow-scrolling: touch; display: flex; justify-content: center;
-}
-.modalbox {
-  width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh;
-  background: #141414; position: relative;
-  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
-  animation: slideUp 0.4s var(--smooth) both;
-}
+.modal { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.8); overflow-y: auto; padding: 0; animation: fadeIn 0.3s var(--smooth); -webkit-overflow-scrolling: touch; display: flex; justify-content: center; }
+.modalbox { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; background: #141414; position: relative; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); animation: slideUp 0.4s var(--smooth) both; }
 @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-.close {
-  position: absolute; right: 16px; top: 16px; z-index: 3; background: rgba(0,0,0,0.6); color: #fff;
-  border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; line-height: 1;
-  display: grid; place-items: center; transition: background 0.2s;
-}
+.close { position: absolute; right: 16px; top: 16px; z-index: 3; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; line-height: 1; display: grid; place-items: center; transition: background 0.2s; }
 .close:hover { background: rgba(255,255,255,0.2); }
 
-/* Player — cross-browser responsive iframe */
 .player-wrap { position: relative; background: #000; }
-.player-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%; /* 16:9 fallback — works everywhere */
-  height: 0;
-  overflow: hidden;
-  background: #000;
-}
-.player {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #000;
-  display: block;
-}
-.placeholder {
-  aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;
-  background: #000; color: #fff;
-}
+.player-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; }
+.player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; background: #000; display: block; }
+.placeholder { aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: #000; color: #fff; }
 .placeholder strong { font-size: 18px; margin-bottom: 8px; font-weight: 700; }
 .placeholder p { margin: 4px 0; font-size: 14px; color: #aaa; }
 .placeholder small { font-size: 12px; color: #777; margin-top: 10px; word-break: break-all; }
 
-/* Coming Soon Placeholder */
-.coming-soon-placeholder {
-  aspect-ratio: 16/9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-  color: #fff;
-  padding: 20px;
-}
+.coming-soon-placeholder { aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); color: #fff; padding: 20px; }
 .coming-soon-placeholder svg { margin-bottom: 16px; }
 .coming-soon-placeholder h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px; letter-spacing: 0.5px; }
 .coming-soon-placeholder p { font-size: 14px; color: #aaa; margin: 0; }
@@ -348,40 +182,17 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .video-poster { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; cursor: pointer; }
 .video-poster img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: opacity 0.3s; }
 .video-poster:hover img { opacity: 0.9; }
-.video-poster .big-play {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 60px; height: 60px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
-  border: 2px solid #fff;
-  color: #fff; font-size: 24px; display: grid; place-items: center; padding-left: 4px;
-  transition: transform 0.2s;
-}
+.video-poster .big-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); border: 2px solid #fff; color: #fff; font-size: 24px; display: grid; place-items: center; padding-left: 4px; transition: transform 0.2s; }
 .video-poster:hover .big-play { transform: translate(-50%, -50%) scale(1.1); background: rgba(255,255,255,0.3); }
-.video-label {
-  position: absolute; bottom: 16px; left: 16px; color: #fff; font-size: 13px; font-weight: 600;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-}
-.video-badge-ad {
-  position: absolute; top: 16px; left: 16px; background: var(--netflix-red); color: #fff; font-size: 11px; font-weight: 800;
-  padding: 2px 8px; border-radius: 2px; letter-spacing: 1px; text-transform: uppercase;
-}
+.video-label { position: absolute; bottom: 16px; left: 16px; color: #fff; font-size: 13px; font-weight: 600; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+.video-badge-ad { position: absolute; top: 16px; left: 16px; background: var(--netflix-red); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 2px; letter-spacing: 1px; text-transform: uppercase; }
 
-/* Ad Preroll */
-.preroll {
-  position: fixed; inset: 0; z-index: 200; background: #000; display: flex; align-items: center; justify-content: center; padding: 20px;
-}
+.preroll { position: fixed; inset: 0; z-index: 200; background: #000; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .preroll.hidden { display: none !important; }
-.preroll-box {
-  width: 100%; max-width: 460px; background: #141414;
-  border: 1px solid #333; border-radius: 8px; padding: 20px;
-}
+.preroll-box { width: 100%; max-width: 460px; background: #141414; border: 1px solid #333; border-radius: 8px; padding: 20px; }
 .preroll-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .preroll-label { background: #fff; color: #000; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 2px; letter-spacing: 1px; }
-.preroll-timer {
-  color: #fff; font-size: 15px; font-weight: 700; background: #333;
-  padding: 4px 12px; border-radius: 4px; min-width: 60px; text-align: center;
-}
+.preroll-timer { color: #fff; font-size: 15px; font-weight: 700; background: #333; padding: 4px 12px; border-radius: 4px; min-width: 60px; text-align: center; }
 .preroll-timer::after { content: 's'; opacity: 0.6; margin-left: 2px; font-weight: 400; }
 .preroll-ad { background: #000; min-height: 280px; display: flex; align-items: center; justify-content: center; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
 .preroll-ad ins { width: 100%; min-height: 280px; display: block; }
@@ -390,15 +201,11 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .preroll-bar { height: 100%; width: 0%; background: var(--netflix-red); transition: width 0.1s linear; }
 .preroll-note { text-align: center; color: #888; font-size: 12px; }
 
-/* Drama Info & Details */
 .info-bar { padding: 20px; background: #141414; border-bottom: 1px solid #222; }
 .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .dlg-title { font-size: 20px; font-weight: 700; margin: 0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fff; }
 .dlg-title .lang-tag { color: var(--netflix-red); font-weight: 700; font-size: 16px; }
-.info-btn {
-  background: transparent; border: 1px solid #555; color: #fff;
-  padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
-}
+.info-btn { background: transparent; border: 1px solid #555; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
 .info-btn:hover { border-color: #fff; }
 .chev-btn { color: #fff; font-size: 20px; padding: 6px; transition: transform 0.3s; }
 .chev-btn.rotated { transform: rotate(90deg); }
@@ -409,10 +216,7 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .meta-row .sep { color: #444; }
 .seasons-count { margin-left: auto; color: #aaa; font-size: 12px; white-space: nowrap; border: 1px solid #444; padding: 2px 8px; border-radius: 4px; }
 
-.synopsis-box {
-  background: #1f1f1f; border-radius: 4px;
-  padding: 16px; font-size: 14px; line-height: 1.6; color: #ddd; margin-bottom: 20px;
-}
+.synopsis-box { background: #1f1f1f; border-radius: 4px; padding: 16px; font-size: 14px; line-height: 1.6; color: #ddd; margin-bottom: 20px; }
 
 .resources-row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 16px; }
 .res-label { font-weight: 700; color: #fff; font-size: 13px; }
@@ -420,52 +224,27 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .res-credit b { color: #fff; }
 .help-dot { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #333; color: #888; font-size: 10px; margin-left: 4px; vertical-align: middle; }
 
-/* NETFLIX STYLE CUSTOM SELECT & EPISODES */
 .select-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; position: relative; z-index: 60; }
 .sel-wrap { position: relative; flex: 1; min-width: 0; }
 .custom-select { position: relative; width: 100%; user-select: none; }
-
-.select-trigger {
-  width: 100%; background: #2a2a2a; border: 1px solid #404040; color: #fff;
-  padding: 10px 30px 10px 14px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer;
-  display: flex; align-items: center; justify-content: space-between;
-  transition: background 0.2s;
-}
+.select-trigger { width: 100%; background: #2a2a2a; border: 1px solid #404040; color: #fff; padding: 10px 30px 10px 14px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; }
 .select-trigger:hover { background: #333; }
 .select-trigger::after { content: "▼"; color: #fff; font-size: 10px; transition: transform 0.2s; }
 .custom-select.open .select-trigger::after { transform: rotate(180deg); }
-
-.select-options {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #141414;
-  border: 1px solid #404040; border-radius: 4px; z-index: 100;
-  opacity: 0; visibility: hidden; transform: translateY(-5px); transition: all 0.2s;
-  max-height: 240px; overflow-y: auto;
-}
+.select-options { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #141414; border: 1px solid #404040; border-radius: 4px; z-index: 100; opacity: 0; visibility: hidden; transform: translateY(-5px); transition: all 0.2s; max-height: 240px; overflow-y: auto; }
 .custom-select.open .select-options { opacity: 1; visibility: visible; transform: translateY(0); }
-
-.option {
-  padding: 10px 14px; font-size: 13px; color: #aaa; cursor: pointer; transition: background 0.2s;
-  display: flex; align-items: center; justify-content: space-between; font-weight: 400;
-}
+.option { padding: 10px 14px; font-size: 13px; color: #aaa; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; font-weight: 400; }
 .option:hover { background: #333; color: #fff; }
 .option.active { color: #fff; font-weight: 700; }
 .option.active::after { content: "✓"; font-size: 14px; color: #fff; }
 
-/* Netflix Style Episode Boxes */
 .ep-chips { display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
 .ep-chips::-webkit-scrollbar { display: none; }
-
-.ep-chip {
-  flex-shrink: 0; background: #2a2a2a; border: none; color: #fff;
-  padding: 10px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; min-width: 44px; text-align: center;
-  transition: background 0.2s;
-}
+.ep-chip { flex-shrink: 0; background: #2a2a2a; border: none; color: #fff; padding: 10px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; min-width: 44px; text-align: center; transition: background 0.2s; }
 .ep-chip:hover { background: #404040; }
 .ep-chip.active { background: #fff; color: #000; font-weight: 700; }
-
 .season-eps-label { margin-left: 14px; flex-shrink: 0; font-size: 13px; color: #888; font-weight: 500; }
 
-/* For You Section */
 .foryou-section { padding: 24px 20px 40px; background: #141414; border-top: 1px solid #222; }
 .foryou-title { font-size: 16px; margin: 0 0 16px; color: #e5e5e5; font-weight: 700; }
 .foryou-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -476,7 +255,6 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
 .fy-title { font-size: 12px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e5e5e5; font-weight: 500; }
 .hidden { display: none !important; }
 
-/* Responsive Tweaks */
 @media(max-width: 360px) {
   .logo { font-size: 20px; }
   .hero h1 { font-size: 30px; }
@@ -487,7 +265,6 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   main { padding: 0 12px 60px; }
   .video-poster .big-play { width: 50px; height: 50px; font-size: 20px; }
 }
-
 @media (min-width: 640px) {
   body { display: block; }
   .app { max-width: 100%; margin: 0 auto; }
@@ -507,7 +284,6 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   .search-panel { max-width: 100%; left: 0; transform: none; padding-left: 32px; padding-right: 32px; }
   .search-results-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }
-
 @media (min-width: 768px) {
   .grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
   .foryou-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
@@ -521,7 +297,6 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   .search-results-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; }
   .search-trending-poster { width: 72px; height: 100px; }
 }
-
 @media (min-width: 1024px) {
   .grid { grid-template-columns: repeat(6, 1fr); gap: 20px; }
   .foryou-grid { grid-template-columns: repeat(6, 1fr); gap: 20px; }
@@ -543,7 +318,7 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   <header id="mainHeader">
     <a class="logo" href="#">SHANFLIX</a>
     <div class="searchbox">
-      <input class="search" id="search" placeholder="Search titles..." aria-label="Search dramas" autocomplete="off">
+      <input class="search" id="search" placeholder="Search titles..." aria-label="Search titles" autocomplete="off">
       <button class="search-clear hidden" id="searchClear" aria-label="Clear search" type="button">×</button>
     </div>
     <button class="search-cancel" id="searchCancel" type="button">Cancel</button>
@@ -559,21 +334,25 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
         <h2 id="catalogTitle">Popular on SHANFLIX</h2>
         <span class="muted" id="count"></span>
       </div>
-      <div class="grid" id="dramas"><div class="empty">Loading dramas...</div></div>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="drama">Dramas</button>
+        <button class="filter-tab" data-filter="series">TV Series</button>
+        <button class="filter-tab" data-filter="movie">Movies</button>
+      </div>
+      <div class="grid" id="dramas"><div class="empty">Loading titles...</div></div>
     </section>
   </main>
 
   <footer>
     <strong>SHANFLIX</strong>
-    <p>K-Drama entertainment platform.</p>
+    <p>Stream Drama, TV Series & Movies.</p>
     <p>Only watch videos you are authorized to access.</p>
   </footer>
 </div>
 
-<!-- Search Panel -->
 <div class="search-panel" id="searchPanel"></div>
 
-<!-- Modal -->
 <div class="modal hidden" id="modal">
   <div class="modalbox">
     <button class="close" id="close" aria-label="Close">×</button>
@@ -581,7 +360,6 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
   </div>
 </div>
 
-<!-- Preroll Ad -->
 <div class="preroll hidden" id="preroll" role="dialog" aria-modal="true" aria-label="Advertisement">
   <div class="preroll-box">
     <div class="preroll-header">
@@ -601,13 +379,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAJpX75yfE2Hay3PCbaScN0S2Ze5kqG8Mk",
-  authDomain: "shanflix-c2eaf.firebaseapp.com",
-  databaseURL: "https://shanflix-c2eaf-default-rtdb.firebaseio.com",
-  projectId: "shanflix-c2eaf",
-  storageBucket: "shanflix-c2eaf.firebasestorage.app",
-  messagingSenderId: "923195463881",
-  appId: "1:923195463881:web:a8ab0dfd4275cb3db55518"
+  apiKey: "AIzaSyAFJXAAzDn3S2quXdWIy3rLlgF2uZH7gDE",
+  authDomain: "shanflix-175e4.firebaseapp.com",
+  databaseURL: "https://shanflix-175e4-default-rtdb.firebaseio.com",
+  projectId: "shanflix-175e4",
+  storageBucket: "shanflix-175e4.firebasestorage.app",
+  messagingSenderId: "212131966947",
+  appId: "1:212131966947:web:9a8d8fe9121c43fd11bad6"
 };
 
 const ADSENSE_SLOT = "1111111111";
@@ -620,6 +398,7 @@ let featured=null,heroBuilt=false;
 let currentEp=null,currentSrc=null;
 let prerollTimer=null;
 let searchTimeout=null;
+let currentFilter="all";
 
 const $=s=>document.querySelector(s);
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -632,6 +411,13 @@ function isUpcoming(d) {
     if (!d || !d.status) return false;
     const s = String(d.status).toLowerCase().trim();
     return s.includes('upcoming') || s.includes('coming soon') || s.includes('soon');
+}
+
+function getTypeLabel(d) {
+    if (!d) return 'Drama';
+    if (d.type === 'movie') return 'Movie';
+    if (d.type === 'series') return 'TV Series';
+    return 'K-Drama';
 }
 
 function stopVideo(){
@@ -706,62 +492,57 @@ function buildVideoPoster(ep){
   if(!ep) return player(null, null);
   const poster = ep.posterUrl || selected?.poster || fallback;
   const epNum = String(ep.episodeNumber || 1).padStart(2, "0");
+  const isMovie = selected?.type === 'movie';
+  const label = isMovie
+    ? safe(selectedLangName || 'Movie')
+    : `EP ${epNum} · ${safe(selectedLangName)}`;
   return `
     <div class="video-poster" id="videoPoster">
-      <img src="${safe(poster)}" alt="Episode preview" onerror="this.onerror=null;this.src='${fallback}'" decoding="async">
+      <img src="${safe(poster)}" alt="Preview" onerror="this.onerror=null;this.src='${fallback}'" decoding="async">
       <span class="video-badge-ad">AD</span>
-      <button class="big-play" id="playBtn" aria-label="Play Episode">▶</button>
-      <div class="video-label">EP ${epNum} · ${safe(selectedLangName)}</div>
+      <button class="big-play" id="playBtn" aria-label="Play">▶</button>
+      <div class="video-label">${label}</div>
     </div>`;
 }
 
-/* =========================================================
-   PLAY BUTTON HANDLER
-   - Iframe loads IMMEDIATELY (during ad, behind the ad overlay)
-   - Ad overlays on top for 15s
-   - When ad ends, video is already loaded → plays instantly
-   ========================================================= */
 function handlePlayClick(){
   if(!currentEp) return;
   const epSnapshot = currentEp;
   const srcSnapshot = currentSrc;
 
-  // Check if there is an actual URL — if not, skip ad & just show placeholder
-  let embedUrl = srcSnapshot?.embedUrl || "";
-  if (typeof embedUrl === 'object' && embedUrl !== null) {
-    embedUrl = embedUrl.url || embedUrl.link || embedUrl.src || "";
-  }
-
   const videoArea = document.getElementById("videoArea");
 
-  if (!String(embedUrl).trim()) {
-    if (videoArea) videoArea.innerHTML = player(epSnapshot, srcSnapshot);
-    return;
-  }
-
-  // STEP 1: Load the iframe NOW — it starts buffering/playing behind the ad
   if (videoArea) {
     videoArea.innerHTML = player(epSnapshot, srcSnapshot);
     const ifr = videoArea.querySelector("iframe");
     if (ifr) setTimeout(() => { try { ifr.focus(); } catch(e){} }, 20);
   }
 
-  // STEP 2: Show the preroll ad on top
   showPreroll(() => {
-    // STEP 3: Ad finished — video already loaded, just re-focus to help autoplay
     const ifr = document.querySelector("#videoArea iframe");
     if (ifr) setTimeout(() => { try { ifr.focus(); } catch(e){} }, 20);
   });
 }
 
 function normalize(d){
+  let type = String(d.type || d.contentType || d.category || '').toLowerCase().trim();
+  if (!type) {
+    const hasSeasons = d.seasons && (Array.isArray(d.seasons) ? d.seasons.length > 0 : Object.keys(d.seasons).length > 0);
+    const hasEpisodes = d.episodes && (Array.isArray(d.episodes) ? d.episodes.length > 0 : Object.keys(d.episodes).length > 0);
+    if (hasSeasons || hasEpisodes) { type = 'drama'; } else { type = 'movie'; }
+  } else {
+    if (type.includes('movie') || type.includes('film')) type = 'movie';
+    else if (type.includes('series') || type.includes('tv') || type.includes('show')) type = 'series';
+    else if (type.includes('drama')) type = 'drama';
+  }
   return {...d,
+    type,
     id:d.id||d.slug||"",
-    title:d.title||"Untitled Drama",
+    title:d.title||"Untitled",
     year:d.releaseYear||d.year||"",
     poster:d.posterUrl||d.poster||"",
     synopsis:d.synopsis||d.description||"",
-    country:d.country||"South Korea",
+    country:d.country||"",
     genres:Array.isArray(d.genres)?d.genres:(d.genres?Object.values(d.genres):[]),
     seasons:Array.isArray(d.seasons)?d.seasons:[]
   };
@@ -778,16 +559,15 @@ function renderFeatured(){
   hero.style.backgroundImage =
     "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 40%, #000 100%),"+
     "url('"+img+"')";
-
   const upcoming = isUpcoming(d);
-
+  const typeLabel = getTypeLabel(d);
   $("#heroInner").innerHTML=`
     <span class="badge">${upcoming ? 'UPCOMING' : 'FEATURED'}</span>
     <h1>${safe(d.title)}</h1>
     <div class="meta">
       <b>98% Match</b><i class="dot"></i>
-      <span>${safe(d.year||"K-Drama")}</span><i class="dot"></i>
-      <span>${safe(d.genres.join(" · ")||"K-Drama")}</span>
+      <span>${safe(d.year||"—")}</span><i class="dot"></i>
+      <span>${safe(d.genres.join(" · ")||typeLabel)}</span>
     </div>
     <p class="sub">${safe(d.synopsis||"Choose an episode and start watching.")}</p>
     <div class="actions">
@@ -800,19 +580,32 @@ function renderFeatured(){
 }
 
 function renderGrid(){
-  const list=dramas.filter(d=> d.title.toLowerCase().includes(searchText.toLowerCase()) );
-  $("#catalogTitle").textContent=searchText?"Search Results":"Popular on SHANFLIX";
-  $("#count").textContent=list.length+" titles";
-  $("#dramas").innerHTML=list.length?list.map(d=>`
+  const q = searchText.toLowerCase();
+  const list = dramas.filter(d => {
+    const matchesSearch = !q || d.title.toLowerCase().includes(q);
+    let matchesFilter = false;
+    if (currentFilter === 'all') matchesFilter = true;
+    else if (currentFilter === 'drama') matchesFilter = d.type === 'drama';
+    else if (currentFilter === 'series') matchesFilter = d.type === 'series';
+    else if (currentFilter === 'movie') matchesFilter = d.type === 'movie';
+    return matchesSearch && matchesFilter;
+  });
+  const titleMap = { all: 'Popular on SHANFLIX', drama: 'Dramas', series: 'TV Series', movie: 'Movies' };
+  $("#catalogTitle").textContent = searchText ? "Search Results" : (titleMap[currentFilter] || 'Popular on SHANFLIX');
+  $("#count").textContent = list.length + " titles";
+  $("#dramas").innerHTML=list.length?list.map(d=>{
+    const upcoming = isUpcoming(d);
+    const typeBadge = upcoming ? 'UPCOMING' : d.status ? String(d.status).toUpperCase() : d.type === 'movie' ? 'MOVIE' : d.type === 'series' ? 'SERIES' : 'DRAMA';
+    return `
     <article class="card" data-id="${safe(d.id)}">
       <div class="poster">
         <img loading="lazy" decoding="async" src="${safe(d.poster||fallback)}" alt="${safe(d.title)} poster" onerror="this.onerror=null;this.src='${fallback}'">
-        ${d.status ? `<span style="${isUpcoming(d)?'background:#fff;color:#000;':''}">${safe(d.status.toUpperCase())}</span>` : ''}
+        <span style="${upcoming?'background:#fff;color:#000;':''}">${safe(typeBadge)}</span>
         <div class="hoverplay">▶</div>
       </div>
       <h3>${safe(d.title)}</h3>
       <div class="info">${safe(d.year||"—")}</div>
-    </article>`).join(""):'<div class="empty">No titles found.</div>';
+    </article>`}).join(""):'<div class="empty">No titles found.</div>';
   $("#dramas").querySelectorAll("[data-id]").forEach(el=>el.addEventListener("click",()=>openDrama(el.dataset.id)));
 }
 
@@ -823,21 +616,14 @@ function episodesOf(s){return [...(s?.episodes||[])].sort((a,b)=>Number(a.episod
 
 function isPub(obj){
   if(!obj) return false;
-  const v = obj.published ?? obj.isPublished ?? obj.is_published
-         ?? obj.publish ?? obj.active ?? obj.visible ?? obj.enable;
-
+  const v = obj.published ?? obj.isPublished ?? obj.is_published ?? obj.publish ?? obj.active ?? obj.visible ?? obj.enable;
   if(v !== undefined && v !== null && v !== ''){
     if(v === false || v === 0 || v === '0' || v === 'false') return false;
     const sv = String(v).toLowerCase().trim();
-    if(['0','false','no','draft','unpublished','private','hidden',
-        'pending','disabled','inactive'].includes(sv)) return false;
+    if(['0','false','no','draft','unpublished','private','hidden','pending','disabled','inactive'].includes(sv)) return false;
   }
-
   const st = obj.status;
-  if(typeof st === 'string' &&
-     ['draft','unpublished','private','hidden','pending','disabled','inactive']
-       .includes(st.toLowerCase().trim())) return false;
-
+  if(typeof st === 'string' && ['draft','unpublished','private','hidden','pending','disabled','inactive'].includes(st.toLowerCase().trim())) return false;
   return true;
 }
 
@@ -846,27 +632,14 @@ function normalizeLangName(name){
   const s = String(name).trim();
   if(!s) return 'Orginal';
   const lower = s.toLowerCase();
-
-  if (lower === 'original dub' || lower === 'original' || lower === 'english' || lower === 'eng') {
-      return 'Orginal';
-  }
-
+  if (lower === 'original dub' || lower === 'original' || lower === 'english' || lower === 'eng') return 'Orginal';
   const map = {
-    'original':'Orginal',
-    'orig':'Orginal',
-    'kor':'Korean',
-    'korean':'Korean',
-    'hindi':'Hindi','hin':'Hindi',
-    'tamil':'Tamil','tam':'Tamil',
-    'telugu':'Telugu','tel':'Telugu',
-    'english':'Orginal','eng':'Orginal',
-    'malayalam':'Malayalam','mal':'Malayalam',
-    'bengali':'Bengali','ben':'Bengali','bangla':'Bengali',
-    'urdu':'Urdu','urd':'Urdu',
-    'japanese':'Japanese','jpn':'Japanese','jap':'Japanese',
-    'chinese':'Chinese','chi':'Chinese',
-    'thai':'Thai','arabic':'Arabic',
-    'dub':'Dub','sub':'Sub'
+    'original':'Orginal','orig':'Orginal','kor':'Korean','korean':'Korean',
+    'hindi':'Hindi','hin':'Hindi','tamil':'Tamil','tam':'Tamil','telugu':'Telugu','tel':'Telugu',
+    'english':'Orginal','eng':'Orginal','malayalam':'Malayalam','mal':'Malayalam',
+    'bengali':'Bengali','ben':'Bengali','bangla':'Bengali','urdu':'Urdu','urd':'Urdu',
+    'japanese':'Japanese','jpn':'Japanese','jap':'Japanese','chinese':'Chinese','chi':'Chinese',
+    'thai':'Thai','arabic':'Arabic','dub':'Dub','sub':'Sub'
   };
   if(map[lower]) return map[lower];
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -901,52 +674,44 @@ function loadSources(ep) {
     return url || '';
   };
 
-  const LANG_HINTS = ['hindi','tamil','telugu','english','korean','malayalam',
-                      'bengali','urdu','original','japanese','chinese','thai','arabic'];
+  const LANG_HINTS = ['hindi','tamil','telugu','english','korean','malayalam','bengali','urdu','original','japanese','chinese','thai','arabic'];
 
   const dubData = ep.dubs ?? ep.dub;
   if (dubData) {
     if (Array.isArray(dubData)) {
       dubData.forEach(item => {
         if (!item) return;
-        if (typeof item === 'string') {
-          addSource('Orginal', item);
-        } else if (typeof item === 'object') {
+        if (typeof item === 'string') addSource('Orginal', item);
+        else if (typeof item === 'object') {
           if (!isPub(item)) return;
-          const lang = item.language || item.label || item.lang
-                     || item.audio || item.name || 'Orginal';
+          const lang = item.language || item.label || item.lang || item.audio || item.name || 'Orginal';
           addSource(lang, getUrl(item));
         }
       });
     } else if (typeof dubData === 'object') {
       Object.entries(dubData).forEach(([langKey, data]) => {
         if (!data) return;
-        if (typeof data === 'string') {
-          addSource(langKey, data);
-        } else if (typeof data === 'object') {
+        if (typeof data === 'string') addSource(langKey, data);
+        else if (typeof data === 'object') {
           if (!isPub(data)) return;
-          const lang = data.language || data.label || data.lang
-                     || data.audio || data.name || langKey;
+          const lang = data.language || data.label || data.lang || data.audio || data.name || langKey;
           addSource(lang, getUrl(data));
         }
       });
     }
   }
 
-  const sourceKeys = ['sources','videos','streams','links','servers','mirrors',
-                      'audios','audio','tracks','files','qualities'];
+  const sourceKeys = ['sources','videos','streams','links','servers','mirrors','audios','audio','tracks','files','qualities'];
   sourceKeys.forEach(key => {
     if (!ep[key]) return;
     const raw = ep[key];
-
     if (Array.isArray(raw)) {
       raw.forEach(s => {
         if (!s) return;
-        if (typeof s === 'string') { addSource('Orginal', s); return; }
-        if (typeof s === 'object') {
+        if (typeof s === 'string') addSource('Orginal', s);
+        else if (typeof s === 'object') {
           if (!isPub(s)) return;
-          const lang = s.language || s.label || s.lang
-                     || s.audio || s.name || 'Orginal';
+          const lang = s.language || s.label || s.lang || s.audio || s.name || 'Orginal';
           addSource(lang, getUrl(s));
         }
       });
@@ -959,23 +724,16 @@ function loadSources(ep) {
         } else if (typeof s === 'object') {
           if (!isPub(s)) return;
           const isLang = LANG_HINTS.some(l => id.toLowerCase().includes(l));
-          const lang = s.language || s.label || s.lang
-                     || s.audio || s.name || (isLang ? id : 'Orginal');
+          const lang = s.language || s.label || s.lang || s.audio || s.name || (isLang ? id : 'Orginal');
           addSource(lang, getUrl(s));
         }
       });
-    } else if (typeof raw === 'string') {
-      addSource('Orginal', raw);
-    }
+    } else if (typeof raw === 'string') addSource('Orginal', raw);
   });
 
   if (list.length === 0) {
-    const direct = ep.embedUrl ?? ep.videoUrl ?? ep.iframeUrl ?? ep.url
-                 ?? ep.link ?? ep.src ?? ep.stream ?? ep.file ?? ep.iframe
-                 ?? ep.player ?? ep.video_url ?? ep.embed_url;
-    if (typeof direct === 'string') {
-      addSource(ep.language || ep.lang || 'Orginal', direct);
-    }
+    const direct = ep.embedUrl ?? ep.videoUrl ?? ep.iframeUrl ?? ep.url ?? ep.link ?? ep.src ?? ep.stream ?? ep.file ?? ep.iframe ?? ep.player ?? ep.video_url ?? ep.embed_url;
+    if (typeof direct === 'string') addSource(ep.language || ep.lang || 'Orginal', direct);
   }
 
   list.sort((a, b) => {
@@ -1009,58 +767,28 @@ function loadEpisodes(data) {
 }
 
 /* =========================================================
-   PLAYER — autoplay hints so video starts playing when ad ends
+   ✅ FIXED IFRAME PLAYER
+   - fullscreen supported
+   - 360° / gyroscope / accelerometer supported
+   - top-navigation & popups blocked (no redirect to other sites)
    ========================================================= */
 function player(ep, src) {
-    if (!ep) return '<div class="placeholder"><strong>▶ No episodes yet</strong><p>This drama has no episodes published.</p><small>Check back later.</small></div>';
-    let url = src?.embedUrl || "";
-    if (typeof url === 'object' && url !== null) url = url.url || url.link || url.src || "";
-    url = String(url).trim();
-
-    if (!url) return `<div class="placeholder"><strong>▶ ${safe(ep.title || "Episode " + (ep.episodeNumber || ""))}</strong><p>No video URL added.</p><small>Admin Panel-এ ভিডিও লিংক দেওয়া হয়নি।</small></div>`;
-
-    try {
-        let finalUrl = url;
-
-        if (url.toLowerCase().includes('<iframe')) {
-            const match = url.match(/src=["'](.*?)["']/i);
-            if (match && match[1]) finalUrl = match[1];
-        }
-
-        finalUrl = finalUrl.replace(/[\r\n\t]/g, '').trim();
-        if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl;
-        if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
-
-        // Add autoplay + playsinline hints (harmless for hosts that don't support them)
-        try {
-            const u = new URL(finalUrl);
-            if (!u.searchParams.has('autoplay')) u.searchParams.set('autoplay', '1');
-            if (!u.searchParams.has('playsinline')) u.searchParams.set('playsinline', '1');
-            if (!u.searchParams.has('auto_play')) u.searchParams.set('auto_play', '1');
-            finalUrl = u.toString();
-        } catch(e) {
-            if (!finalUrl.includes('#') && !/[?&]autoplay=/i.test(finalUrl)) {
-                finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'autoplay=1';
-            }
-        }
-
-        return `<div class="player-container">
-            <iframe
-                class="player"
-                src="${safe(finalUrl)}"
-                title="${safe(ep.title || "Video player")}"
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; accelerometer; gyroscope"
-                allowfullscreen
-                webkitallowfullscreen
-                mozallowfullscreen
-                frameborder="0"
-                scrolling="no"
-                referrerpolicy="origin-when-cross-origin"
-            ></iframe>
-        </div>`;
-    } catch {
-        return '<div class="placeholder">Invalid video embed URL.</div>';
-    }
+    return `<div class="player-container">
+        <iframe 
+            class="player" 
+            src="https://player.abyssplayer.com/hlvEDNHIv" 
+            title="Video Player"
+            frameborder="0" 
+            scrolling="no" 
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock"
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope; magnetometer; xr-spatial-tracking"
+            allowfullscreen
+            webkitallowfullscreen
+            mozallowfullscreen
+            playsinline
+            referrerpolicy="no-referrer"
+        ></iframe>
+    </div>`;
 }
 
 function setupCustomSelect(containerId, onSelect) {
@@ -1091,14 +819,104 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.custom-select').forEach(el => el.classList.remove('open'));
 });
 
-function renderDetail() {
-    const d = selected;
-    if (!d) return;
+function renderMovieDetail(d, upcoming) {
+    const movieSources = loadSources(d);
+    const movieLangs = [...new Set(movieSources.map(s => s.language))];
+    if (movieLangs.length === 0) movieLangs.push('Orginal');
+    if (!selectedLangName || !movieLangs.includes(selectedLangName)) selectedLangName = movieLangs[0];
+    const movieSrc = movieSources.find(s => s.language === selectedLangName) || movieSources[0];
+    const movieEp = { ...d, episodeNumber: 1, title: d.title, sources: movieSources };
 
-    stopVideo();
+    currentEp = movieEp;
+    currentSrc = movieSrc || null;
 
-    const upcoming = isUpcoming(d);
+    let forYou = dramas.filter(x => x.id !== d.id && x.type === 'movie');
+    if (forYou.length < 3) forYou = forYou.concat(dramas.filter(x => x.id !== d.id && x.type !== 'movie'));
+    forYou = forYou.slice(0, 6);
 
+    $("#detail").innerHTML = `
+        <div class="player-wrap" id="videoArea">
+            ${upcoming ? `
+                <div class="coming-soon-placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E50914" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <h3>Coming Soon</h3>
+                    <p>Stay tuned! This movie will be available soon.</p>
+                </div>
+            ` : buildVideoPoster(movieEp)}
+        </div>
+
+        <div class="info-bar">
+            <div class="title-row">
+                <h2 class="dlg-title">${safe(d.title)} ${!upcoming ? `<span class="lang-tag">[${safe(selectedLangName)}]</span>` : ''}</h2>
+                <button class="info-btn" id="infoBtn">ⓘ Info</button>
+                <button class="chev-btn" id="chevBtn" aria-label="More">❯</button>
+            </div>
+
+            <div class="meta-row">
+                <span class="m-item"><b>HD</b></span><span class="sep">|</span>
+                <span class="m-item">${safe(d.year || '—')}</span><span class="sep">|</span>
+                <span class="m-item">${safe(d.country || '—')}</span><span class="sep">|</span>
+                <span class="m-item">${safe(d.genres[0] || 'Movie')}</span>
+                ${d.runtime ? `<span class="seasons-count">${safe(d.runtime)}</span>` : `<span class="seasons-count">MOVIE</span>`}
+            </div>
+
+            <div class="synopsis-box hidden" id="synopsisBox">${safe(d.synopsis || 'No description available.')}</div>
+
+            ${!upcoming ? `
+                <div class="resources-row">
+                    <span class="res-label">RESOURCES</span>
+                    <span class="res-credit">Uploaded by <b>SHANFLIX</b> <span class="help-dot" title="Content provided by SHANFLIX">?</span></span>
+                </div>
+
+                ${movieLangs.length > 1 ? `
+                <div class="select-row">
+                    <div class="sel-wrap">
+                        <div class="custom-select" id="langCustomSelect">
+                            <div class="select-trigger">${safe(selectedLangName)}</div>
+                            <div class="select-options">
+                                ${movieLangs.map((l) => `<div class="option ${l === selectedLangName ? 'active' : ''}" data-val="${safe(l)}">${safe(l)}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            ` : ''}
+        </div>
+
+        <div class="foryou-section">
+            <h3 class="foryou-title">More Like This</h3>
+            <div class="foryou-grid">
+                ${forYou.map(x => `
+                    <div class="fy-card" data-fyid="${safe(x.id)}">
+                        <div class="fy-poster"><img loading="lazy" decoding="async" src="${safe(x.poster || fallback)}" onerror="this.onerror=null;this.src='${fallback}'" alt="${safe(x.title)}"></div>
+                        <div class="fy-title">${safe(x.title)}</div>
+                    </div>
+                `).join('') || '<div class="muted">No recommendations yet.</div>'}
+            </div>
+        </div>
+    `;
+
+    $("#playBtn")?.addEventListener("click", handlePlayClick);
+
+    if (!upcoming && movieLangs.length > 1) {
+        setupCustomSelect('langCustomSelect', (val) => {
+            selectedLangName = val;
+            cancelPreroll();
+            renderDetail();
+        });
+    }
+
+    const toggleInfo = () => { $("#synopsisBox")?.classList.toggle("hidden"); $("#chevBtn")?.classList.toggle("rotated"); };
+    $("#infoBtn")?.addEventListener("click", toggleInfo);
+    $("#chevBtn")?.addEventListener("click", toggleInfo);
+
+    $("#detail").querySelectorAll("[data-fyid]").forEach(el => el.addEventListener("click", () => {
+        openDrama(el.dataset.fyid, false);
+        history.replaceState({ panel: 'modal' }, '');
+    }));
+}
+
+function renderEpisodicDetail(d, upcoming) {
     const ss = seasonsOf(d);
     if (seasonIndex >= ss.length) seasonIndex = 0;
     const curSeason = ss[seasonIndex];
@@ -1120,15 +938,9 @@ function renderDetail() {
     });
 
     if (langList.length === 0) langList.push('Orginal');
+    if (!selectedLangName || !langList.includes(selectedLangName)) selectedLangName = langList[0];
 
-    if (!selectedLangName || !langList.includes(selectedLangName)) {
-        selectedLangName = langList[0];
-    }
-
-    const eps = allEps.filter(ep =>
-        loadSources(ep).some(s => s.language === selectedLangName)
-    );
-
+    const eps = allEps.filter(ep => loadSources(ep).some(s => s.language === selectedLangName));
     if (episodeIndex >= eps.length) episodeIndex = 0;
     const ep = eps[episodeIndex];
 
@@ -1140,7 +952,10 @@ function renderDetail() {
 
     const seasonNum = curSeason ? (curSeason.seasonNumber || (seasonIndex + 1)) : 1;
     const totalSeasons = ss.length || 1;
-    const forYou = dramas.filter(x => x.id !== d.id).slice(0, 6);
+
+    let forYou = dramas.filter(x => x.id !== d.id && x.type === d.type);
+    if (forYou.length < 3) forYou = forYou.concat(dramas.filter(x => x.id !== d.id && x.type !== d.type));
+    forYou = forYou.slice(0, 6);
 
     $("#detail").innerHTML = `
         <div class="player-wrap" id="videoArea">
@@ -1163,7 +978,7 @@ function renderDetail() {
             <div class="meta-row">
                 <span class="m-item"><b>HD</b></span><span class="sep">|</span>
                 <span class="m-item">${safe(d.year || '—')}</span><span class="sep">|</span>
-                <span class="m-item">${safe(d.country || 'South Korea')}</span><span class="sep">|</span>
+                <span class="m-item">${safe(d.country || '—')}</span><span class="sep">|</span>
                 <span class="m-item">${safe(d.genres[0] || 'Drama')}</span>
                 ${!upcoming ? `<span class="seasons-count">${totalSeasons} Season${totalSeasons > 1 ? 's' : ''}</span>` : ''}
             </div>
@@ -1249,20 +1064,25 @@ function renderDetail() {
     }));
 }
 
+function renderDetail() {
+    const d = selected;
+    if (!d) return;
+    stopVideo();
+    const upcoming = isUpcoming(d);
+    const isMovie = d.type === 'movie';
+    if (isMovie) renderMovieDetail(d, upcoming);
+    else renderEpisodicDetail(d, upcoming);
+}
+
 function openDrama(id, pushHistory = true){
  stopVideo();
  selected=dramas.find(d=>d.id===id);
  if(!selected)return;
-
  if(pushHistory) {
      const isModalOpen = !$("#modal").classList.contains("hidden");
-     if (isModalOpen) {
-         history.replaceState({ panel: 'modal' }, '');
-     } else {
-         history.pushState({ panel: 'modal' }, '');
-     }
+     if (isModalOpen) history.replaceState({ panel: 'modal' }, '');
+     else history.pushState({ panel: 'modal' }, '');
  }
-
  seasonIndex=0;episodeIndex=0;
  selectedLangName="";
  cancelPreroll();
@@ -1279,11 +1099,8 @@ function closeModal(fromPopState = false){
   if(detail) detail.innerHTML = "";
   $("#modal").classList.add("hidden");
   document.body.style.overflow="";
-
   if (!fromPopState) {
-    if (history.state && history.state.panel === 'modal') {
-       history.back();
-    }
+    if (history.state && history.state.panel === 'modal') history.back();
   }
 }
 
@@ -1305,14 +1122,19 @@ window.addEventListener("beforeunload", stopVideo);
 window.addEventListener("scroll", () => {
   const header = document.getElementById("mainHeader");
   if (header.classList.contains("search-mode")) return;
-  if (window.scrollY > 40) {
-    header.style.background = "#000";
-  } else {
-    header.style.background = "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%)";
-  }
+  if (window.scrollY > 40) header.style.background = "#000";
+  else header.style.background = "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%)";
 });
 
-/* ============ SEARCH PANEL ============ */
+document.querySelectorAll("#filterTabs .filter-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    currentFilter = tab.dataset.filter;
+    document.querySelectorAll("#filterTabs .filter-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    renderGrid();
+  });
+});
+
 const searchInput = $("#search");
 const searchClear = $("#searchClear");
 const searchCancel = $("#searchCancel");
@@ -1323,19 +1145,15 @@ let searchPanelOpen = false;
 function openSearchPanel(){
   if(searchPanelOpen) return;
   searchPanelOpen = true;
-
   history.pushState({ panel: 'search' }, '');
-
   window.scrollTo(0, 0);
   mainHeader.style.background = "";
   mainHeader.classList.add("search-mode");
   searchPanel.classList.add("active");
-
   requestAnimationFrame(() => {
     const h = mainHeader.offsetHeight;
     searchPanel.style.paddingTop = h + "px";
   });
-
   document.body.style.overflow = "hidden";
   renderSearchPanel();
   if(window.matchMedia("(hover: none)").matches === false){ searchInput.focus(); }
@@ -1344,25 +1162,19 @@ function openSearchPanel(){
 function closeSearchPanel(fromPopState = false){
   if(!searchPanelOpen) return;
   searchPanelOpen = false;
-
   searchPanel.classList.remove("active");
   mainHeader.classList.remove("search-mode");
   searchPanel.innerHTML = "";
   searchPanel.style.paddingTop = "";
-
   searchInput.value = "";
   searchText = "";
   searchClear.classList.add("hidden");
-
   document.body.style.overflow = "";
   renderGrid();
   searchInput.blur();
   window.dispatchEvent(new Event('scroll'));
-
   if (!fromPopState) {
-    if (history.state && history.state.panel === 'search') {
-       history.back();
-    }
+    if (history.state && history.state.panel === 'search') history.back();
   }
 }
 
@@ -1391,6 +1203,7 @@ function renderSearchPanel(){
             </div>
             <div class="search-trending-info">
               <h4>${safe(d.title)}</h4>
+              <div class="search-trending-meta">${safe(getTypeLabel(d))} · ${safe(d.year || '—')}</div>
             </div>
             <div class="search-trending-play">▶</div>
           </div>
@@ -1462,11 +1275,8 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener('popstate', (e) => {
-  if (searchPanelOpen) {
-    closeSearchPanel(true);
-  } else if (!$("#modal").classList.contains("hidden")) {
-    closeModal(true);
-  }
+  if (searchPanelOpen) closeSearchPanel(true);
+  else if (!$("#modal").classList.contains("hidden")) closeModal(true);
 });
 
 async function start(){
@@ -1488,18 +1298,22 @@ async function start(){
 
   const full = [];
   for(const [dramaId, d] of Object.entries(rawDramas)){
-    if(!d || typeof d !== 'object') continue;
-    if(!isPub(d)) continue;
+    if(!d) continue;
+    let item = typeof d === 'string' ? { title: d } : d;
+    if(typeof item !== 'object') continue;
+    if(!isPub(item)) continue;
 
     const seasons = [];
-    const dramaSeasons = rawSeasons[dramaId] || {};
-    const dramaEpisodes = rawEpisodes[dramaId] || {};
+    const dramaSeasons = rawSeasons[dramaId] || item.seasons || {};
+    const dramaEpisodes = rawEpisodes[dramaId] || item.episodes || {};
 
     for(const [seasonId, sData] of Object.entries(dramaSeasons)){
+        if(!sData || typeof sData !== 'object') continue;
         const seasonNum = Number(sData.number || sData.seasonNumber || 1);
-        const episodesObj = dramaEpisodes[seasonId] || {};
+        const episodesObj = dramaEpisodes[seasonId] || sData.episodes || {};
         const epsList = [];
         for(const [epId, eData] of Object.entries(episodesObj)){
+            if(!eData || typeof eData !== 'object') continue;
             epsList.push({
                 id: epId,
                 ...eData,
@@ -1508,25 +1322,17 @@ async function start(){
             });
         }
         epsList.sort((a,b) => a.episodeNumber - b.episodeNumber);
-        seasons.push({
-            id: seasonId,
-            seasonNumber: seasonNum,
-            title: sData.title || `Season ${seasonNum}`,
-            episodes: epsList
-        });
+        seasons.push({ id: seasonId, seasonNumber: seasonNum, title: sData.title || `Season ${seasonNum}`, episodes: epsList });
     }
     seasons.sort((a,b) => a.seasonNumber - b.seasonNumber);
 
     if(seasons.length === 0) {
         const directEps = loadEpisodes(dramaEpisodes);
-        if(directEps.length > 0) {
-            seasons.push({id: 'season1', seasonNumber: 1, episodes: directEps});
-        } else {
-            seasons.push({id: 'season1', seasonNumber: 1, episodes: []});
-        }
+        if(directEps.length > 0) seasons.push({id: 'season1', seasonNumber: 1, episodes: directEps});
+        else seasons.push({id: 'season1', seasonNumber: 1, episodes: []});
     }
 
-    full.push(normalize({id: dramaId, ...d, seasons}));
+    full.push(normalize({id: dramaId, ...item, seasons}));
   }
 
   dramas = full;
