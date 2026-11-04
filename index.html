@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="google-adsense-account" content="ca-pub-4742152553733393">
-<title>SHANFLIX | Drama, TV Series & Movies</title>
+<!-- ✅ Title আপডেট করা হয়েছে -->
+<title>SHANFLIX | Movie, TV Series & Drama</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -344,9 +345,10 @@ footer strong { color: #555; font-size: 14px; letter-spacing: 1px; display: bloc
     </section>
   </main>
 
+  <!-- ✅ Footer আপডেট করা হয়েছে -->
   <footer>
     <strong>SHANFLIX</strong>
-    <p>Stream Drama, TV Series & Movies.</p>
+    <p>Stream Movie, TV Series & Drama.</p>
     <p>Only watch videos you are authorized to access.</p>
   </footer>
 </div>
@@ -767,12 +769,11 @@ function loadEpisodes(data) {
 }
 
 /* =========================================================
-   ✅ FIXED IFRAME PLAYER
-   - Hardcoded link unlock & removed dynamic path error
+   ✅ NEW IFRAME PLAYER (Hardcoded new3.multicloudlinks.com)
    ========================================================= */
 function player(ep, src) {
-    // আপনার দেওয়া নতুন লিংকটি এখানে সেট করা হয়েছে
-    const hardcodedUrl = "https://player.abyssplayer.com/uslrg6kgm"; 
+    // আপনার দেওয়া নির্দিষ্ট লিংকটি এখানে সেট করা হলো
+    const hardcodedUrl = "https://new3.multicloudlinks.com";
 
     return `<div class="player-container">
         <iframe 
@@ -781,8 +782,8 @@ function player(ep, src) {
             title="Video Player"
             frameborder="0" 
             scrolling="no" 
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock"
-            allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope; magnetometer; xr-spatial-tracking"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox"
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope; magnetometer; xr-spatial-tracking; clipboard-write"
             allowfullscreen
             webkitallowfullscreen
             mozallowfullscreen
