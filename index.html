@@ -6,17 +6,63 @@
 <meta name="theme-color" content="#000000">
 <title>SHANFLIX — Your World of Entertainment</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- ============================================================
+     ⚡ CRITICAL: INSTANT LCP PRELOAD (runs BEFORE any other JS)
+     Reads localStorage synchronously → preloads hero image NOW
+     ============================================================ -->
+<script>
+(function(){
+  try {
+    var raw = localStorage.getItem('shanflix_content_v3');
+    if (!raw) return;
+    var parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.data) || !parsed.data.length) return;
+    var first = parsed.data.find(function(i){ return i && i.isSlider && i.status !== 'upcoming'; }) 
+             || parsed.data[0];
+    var url = (first && (first.backdrop || first.poster)) || '';
+    if (!url) return;
+
+    // Preload LCP image
+    var img = document.createElement('link');
+    img.rel = 'preload'; img.as = 'image'; img.href = url; img.fetchPriority = 'high';
+    document.head.appendChild(img);
+
+    // Preconnect to image domain early
+    try {
+      var origin = new URL(url, location.href).origin;
+      var pc = document.createElement('link');
+      pc.rel = 'preconnect'; pc.href = origin; pc.crossOrigin = 'anonymous';
+      document.head.appendChild(pc);
+    } catch(e){}
+
+    // Preload next 2 hero slides (likely next)
+    var upcoming = parsed.data.filter(function(i){ return i && i.isSlider && i.status !== 'upcoming'; }).slice(1,3);
+    upcoming.forEach(function(item){
+      var u = item.backdrop || item.poster;
+      if (u) { var l = new Image(); l.src = u; }
+    });
+  } catch(e){}
+})();
+</script>
+
+<!-- ============================================================
+     ⚡ RESOURCE HINTS (fast DNS/TCP/TLS handshakes)
+     ============================================================ -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://shanflix-c11ee-default-rtdb.firebaseio.com" crossorigin>
 <link rel="dns-prefetch" href="https://firebaseinstallations.googleapis.com">
+<link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+<link rel="dns-prefetch" href="https://www.google-analytics.com">
 
+<!-- ============================================================
+     ⚡ FONTS — Reduced from 6 weights to 3 (400/600/800)
+     ============================================================ -->
 <link rel="preload" as="style"
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap"
       onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap">
 </noscript>
 
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -34,15 +80,18 @@ body{
   background:var(--bg);color:var(--text);
   font-family:Inter,"Helvetica Neue",Arial,sans-serif;
   overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeSpeed;
 }
 button,input,select{font:inherit}
 button{cursor:pointer;border:0;background:none;color:inherit}
+img{content-visibility:auto}
 
 header{
   height:68px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;
   position:fixed;top:0;left:0;width:100%;z-index:100;
   background:linear-gradient(180deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.55) 60%,rgba(0,0,0,0) 100%);
   transition:background .35s ease;
+  contain:layout style;
 }
 header.scrolled{background:#141414;box-shadow:0 2px 18px rgba(0,0,0,.65)}
 .logo{
@@ -89,12 +138,15 @@ nav a:hover{color:var(--muted)}
 .search-result-meta{color:#b3b3b3;font-size:11px;margin-top:4px}
 .search-no-results{padding:24px;text-align:center;color:#b3b3b3;font-size:13px}
 
-.hero{position:relative;height:88vh;min-height:600px;background:#000;overflow:hidden}
+/* HERO — optimized for fast paint */
+.hero{position:relative;height:88vh;min-height:600px;background:#000;overflow:hidden;contain:layout paint}
 .hero-slide{
-  position:absolute;inset:0;opacity:0;transition:opacity 1s ease-in-out;
+  position:absolute;inset:0;opacity:0;transition:opacity .8s ease-in-out;
   display:flex;align-items:center;padding:120px 4% 130px;
   background-size:cover;background-position:center 20%;background-repeat:no-repeat;
   z-index:1;
+  transform:translateZ(0);
+  will-change:opacity;
 }
 .hero-slide.active{opacity:1;z-index:2}
 .hero-slide::before{
@@ -104,11 +156,11 @@ nav a:hover{color:var(--muted)}
     linear-gradient(0deg, #141414 0%, rgba(20,20,20,.55) 22%, rgba(20,20,20,0) 55%);
   z-index:-1;
 }
-.hero-content{position:relative;z-index:2;max-width:620px;transform:translateY(20px);transition:transform .8s ease}
+.hero-content{position:relative;z-index:2;max-width:620px;transform:translateY(20px);transition:transform .6s ease}
 .hero-slide.active .hero-content{transform:translateY(0)}
 .tag{display:inline-flex;align-items:center;gap:9px;color:#fff;font-size:12px;font-weight:700;letter-spacing:4px;margin-bottom:18px}
 .tag .tag-n{font-family:'Bebas Neue',Impact,sans-serif;font-size:26px;letter-spacing:0;color:var(--red);line-height:1}
-.hero h1{font-size:clamp(42px,7vw,82px);font-weight:900;line-height:1.02;letter-spacing:-2px;margin-bottom:18px;text-shadow:0 4px 20px rgba(0,0,0,.8)}
+.hero h1{font-size:clamp(42px,7vw,82px);font-weight:800;line-height:1.02;letter-spacing:-2px;margin-bottom:18px;text-shadow:0 4px 20px rgba(0,0,0,.8)}
 .hero-meta{display:flex;align-items:center;gap:12px;font-size:13.5px;color:#d6d6d6;margin-bottom:16px;font-weight:500}
 .hero-meta .match{color:#46d369;font-weight:700}
 .hero-meta .badge{border:1px solid rgba(255,255,255,.5);padding:1px 7px;font-size:11px;border-radius:2px}
@@ -127,6 +179,7 @@ nav a:hover{color:var(--muted)}
 .primary-btn.notify-btn{background:#f5a623;color:#000}
 .primary-btn.notify-btn:hover{background:#ffb733}
 
+/* CATALOGUE — content-visibility for off-screen perf */
 .section{padding:26px 4% 10px;position:relative;z-index:5;background:var(--bg)}
 .section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
 .section-heading h2{font-size:21px;font-weight:700;letter-spacing:.2px}
@@ -142,8 +195,11 @@ nav a:hover{color:var(--muted)}
 .category-btn:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.08)}
 .category-btn.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 18px rgba(229,9,20,.45)}
 
-.movie-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-bottom:20px}
-.movie-card{min-width:0;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.3,1);position:relative}
+.movie-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-bottom:20px;
+  content-visibility:auto;contain-intrinsic-size:1px 800px;
+}
+.movie-card{min-width:0;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.3,1);position:relative;contain:layout style}
 .movie-card:hover{transform:scale(1.05);z-index:3}
 .poster{
   width:100%;aspect-ratio:2/3;border-radius:4px;overflow:hidden;position:relative;
@@ -176,6 +232,7 @@ nav a:hover{color:var(--muted)}
   aspect-ratio:2/3;border-radius:4px;
   background:linear-gradient(90deg,#1f1f1f 25%,#2a2a2a 50%,#1f1f1f 75%);
   background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;
+  contain:strict;
 }
 .skeleton-text{
   background:linear-gradient(90deg,#1f1f1f 25%,#2a2a2a 50%,#1f1f1f 75%);
@@ -210,7 +267,7 @@ footer strong{color:var(--red)}
   justify-content:center;transition:background .2s;border:1px solid rgba(255,255,255,.1);
 }
 .close:hover{background:var(--red)}
-.modal-player-wrap{width:100%;aspect-ratio:16/9;background:#000;position:relative}
+.modal-player-wrap{width:100%;aspect-ratio:16/9;background:#000;position:relative;overflow:hidden;contain:strict}
 .video-frame{width:100%;height:100%;border:0;display:block}
 .player-placeholder{
   width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;
@@ -219,7 +276,7 @@ footer strong{color:var(--red)}
 .player-placeholder > span{font-size:24px;color:#333;margin-bottom:10px}
 .player-placeholder.coming-soon{background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);gap:0}
 .player-placeholder.coming-soon .cs-icon{font-size:46px;color:var(--red);margin-bottom:18px;animation:pulseIcon 2s ease-in-out infinite;line-height:1}
-.player-placeholder.coming-soon .cs-title{font-size:22px;font-weight:900;letter-spacing:6px;color:#fff;margin-bottom:12px}
+.player-placeholder.coming-soon .cs-title{font-size:22px;font-weight:800;letter-spacing:6px;color:#fff;margin-bottom:12px}
 .player-placeholder.coming-soon .cs-sub{font-size:11px;color:#777;letter-spacing:3px;font-weight:600}
 @keyframes pulseIcon{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.65;transform:scale(1.1)}}
 
@@ -272,23 +329,18 @@ footer strong{color:var(--red)}
 .select-options li:hover{background:#2a2a2a;color:#fff}
 .select-options li.active{color:var(--red);font-weight:700}
 
-/* =========================================
-   EPISODE SLIDER (UPDATED CSS)
-   ========================================= */
 .ep-grid {
   display: flex;
   gap: 10px;
-  flex-wrap: nowrap; /* এক লাইনে রাখার জন্য */
-  overflow-x: auto; /* স্লাইডার/স্ক্রল করার জন্য */
+  flex-wrap: nowrap;
+  overflow-x: auto;
   position: relative;
   z-index: 10;
   padding-bottom: 8px;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.ep-grid::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
+.ep-grid::-webkit-scrollbar { display: none; }
 .ep-btn {
   width: 50px;
   height: 40px;
@@ -302,7 +354,7 @@ footer strong{color:var(--red)}
   justify-content: center;
   transition: .2s;
   border: 1px solid transparent;
-  flex-shrink: 0; /* বাটনগুলো চেপে যাওয়া রোধ করতে */
+  flex-shrink: 0;
 }
 .ep-btn:hover{background:#3a3a3a}
 .ep-btn.active{background:var(--red);border-color:var(--red);box-shadow:0 0 15px rgba(229,9,20,.4)}
@@ -327,7 +379,6 @@ footer strong{color:var(--red)}
 .toast.show{display:block;animation:toastIn .3s ease forwards}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* Custom Video Loader CSS */
 .video-loader-overlay {
   position: absolute; inset: 0; z-index:10;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -346,6 +397,89 @@ footer strong{color:var(--red)}
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .video-loader-text { color: #fff; font-size: 13px; font-weight: 600; margin-top: 16px; letter-spacing: 1px; }
+
+.ad-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: adFadeIn 0.35s ease;
+}
+@keyframes adFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.ad-overlay-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ad-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(245,166,35,0.95);
+  color: #000;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  z-index: 3;
+  text-transform: uppercase;
+}
+.ad-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 32px 16px;
+  box-sizing: border-box;
+}
+.ad-slot iframe,
+.ad-slot img,
+.ad-slot > div {
+  max-width: 100%;
+  max-height: 100%;
+}
+.ad-timer {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #e5e5e5;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: rgba(0,0,0,0.75);
+  padding: 7px 18px;
+  border-radius: 20px;
+  z-index: 3;
+  border: 1px solid rgba(255,255,255,0.12);
+  white-space: nowrap;
+}
+.ad-timer span {
+  color: #f5a623;
+  font-weight: 800;
+  font-size: 14px;
+}
+.ad-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--red), #f5a623);
+  width: 0%;
+  transition: width 1s linear;
+  z-index: 3;
+}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
@@ -383,20 +517,23 @@ footer strong{color:var(--red)}
   .new-controls{gap:8px;display:flex;flex-direction:row}
   .custom-select{flex:1;max-width:calc(50% - 4px)}
   .select-trigger{padding:10px 12px;font-size:13px}
-  
-  /* Mobile Episodes Slider Fix */
+
   .ep-btn {
-    width: 45px; 
-    height: 36px; 
-    font-size: 13px; 
+    width: 45px;
+    height: 36px;
+    font-size: 13px;
     flex-shrink: 0;
   }
-  
+
   .more-like-wrap{padding:20px}
   .related-grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .related-title{font-size:11px}
   .player-placeholder.coming-soon .cs-title{font-size:16px;letter-spacing:4px}
   .player-placeholder.coming-soon .cs-icon{font-size:34px}
+
+  .ad-slot{padding:24px 10px}
+  .ad-timer{font-size:11px;padding:6px 14px;bottom:10px}
+  .ad-label{font-size:9px;padding:2px 8px}
 }
 @media(max-width:380px){.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}}
 </style>
@@ -510,10 +647,10 @@ footer strong{color:var(--red)}
    REDIRECT / POPUP BLOCKER — runs IMMEDIATELY
    ============================================================ */
 (function blockRedirects(){
-  try { window.open = function(){ 
-    console.warn("SHANFLIX: popup blocked"); 
-    if(typeof showToast === 'function') showToast("Popup blocked"); 
-    return null; 
+  try { window.open = function(){
+    console.warn("SHANFLIX: popup blocked");
+    if(typeof showToast === 'function') showToast("Popup blocked");
+    return null;
   }; } catch(e){}
 })();
 
@@ -537,7 +674,42 @@ let currentSeasonIndex = 0;
 let currentSlideIndex = 0;
 let slideInterval = null;
 
+/* ============================================================
+   ADSTERRA CONFIG
+   ============================================================ */
+const ADSTERRA_AD_CODE = `
+  <!-- ⬇️⬇️⬇️ এখানে আপনার Adsterra কোড বসান ⬇️⬇️⬇️ -->
+  <div id="adsterra-container" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0a0a0a;color:#666;font-size:14px;">
+    <div style="text-align:center;padding:20px;">
+      <div style="font-size:40px;margin-bottom:12px;">📺</div>
+      <div style="font-weight:700;color:#f5a623;margin-bottom:6px;">ADSTERRA AD</div>
+      <div style="font-size:12px;color:#888;">এখানে Adsterra কোড বসান</div>
+      <div style="font-size:11px;color:#555;margin-top:8px;">(Key: 6178472)</div>
+    </div>
+  </div>
+  <!-- ⬆️⬆️⬆️ এখানে আপনার Adsterra কোড বসান ⬆️⬆️⬆️ -->
+`;
+const AD_DURATION = 15;
+
 const CACHE_KEY = "shanflix_content_v3";
+const IMG_CACHE_NAME = "shanflix-img-v1";
+
+/* ============================================================
+   ⚡ CACHE API — for hero images & posters (instant repeat visits)
+   ============================================================ */
+async function cacheImage(url) {
+  if (!('caches' in window) || !url) return;
+  try {
+    const cache = await caches.open(IMG_CACHE_NAME);
+    const hit = await cache.match(url);
+    if (!hit) await cache.add(url);
+  } catch(e){}
+}
+
+function prefetchImages(urls) {
+  if (!('caches' in window)) return;
+  urls.slice(0, 8).forEach(u => { if (u) cacheImage(u); });
+}
 
 function readCache() {
   try {
@@ -605,7 +777,7 @@ function preconnectToVideoDomain(url) {
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
@@ -630,6 +802,93 @@ function showToast(msg) {
   window.toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
 }
 
+/* ============================================================
+   ADBLOCK DETECTION
+   ============================================================ */
+function isAdBlockEnabled() {
+  return new Promise((resolve) => {
+    const bait = document.createElement('div');
+    bait.className = 'ad-banner adsbox ad-placement pub_300x250 banner-ad';
+    bait.id = 'ad-banner-check';
+    bait.style.cssText = 'width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
+    bait.innerHTML = '&nbsp;';
+    document.body.appendChild(bait);
+
+    setTimeout(() => {
+      const style = window.getComputedStyle(bait);
+      const isBlocked =
+        bait.offsetHeight === 0 ||
+        bait.offsetWidth === 0 ||
+        bait.clientHeight === 0 ||
+        style.display === 'none' ||
+        style.visibility === 'hidden' ||
+        style.opacity === '0' ||
+        !bait.parentNode;
+
+      try { bait.remove(); } catch(e) {}
+      console.log("SHANFLIX: AdBlock detected =", isBlocked);
+      resolve(isBlocked);
+    }, 100);
+  });
+}
+
+/* ============================================================
+   PRE-ROLL AD PLAYER
+   ============================================================ */
+function showPreRollAd(container, onComplete) {
+  const adOverlay = document.createElement('div');
+  adOverlay.className = 'ad-overlay';
+  adOverlay.innerHTML = `
+    <div class="ad-overlay-content">
+      <div class="ad-label">Advertisement</div>
+      <div class="ad-slot" id="adsterraSlot"></div>
+      <div class="ad-timer">Video will start in <span id="adCountdown">${AD_DURATION}</span>s</div>
+      <div class="ad-progress-bar" id="adProgressBar"></div>
+    </div>
+  `;
+  container.innerHTML = '';
+  container.appendChild(adOverlay);
+
+  const slot = document.getElementById('adsterraSlot');
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(ADSTERRA_AD_CODE, 'text/html');
+    slot.innerHTML = doc.body.innerHTML;
+    doc.querySelectorAll('script').forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr => {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+      newScript.textContent = oldScript.textContent;
+      slot.appendChild(newScript);
+    });
+  } catch(err) {
+    console.warn("Ad inject error:", err);
+    slot.innerHTML = '<div style="color:#666;font-size:13px;">Ad loading...</div>';
+  }
+
+  let secondsLeft = AD_DURATION;
+  const countdownEl = document.getElementById('adCountdown');
+  const progressBar = document.getElementById('adProgressBar');
+  if (progressBar) progressBar.style.width = '0%';
+
+  const tick = setInterval(() => {
+    secondsLeft--;
+    if (countdownEl) countdownEl.textContent = secondsLeft;
+    if (progressBar) {
+      progressBar.style.width = ((AD_DURATION - secondsLeft) / AD_DURATION * 100) + '%';
+    }
+    if (secondsLeft <= 0) {
+      clearInterval(tick);
+      adOverlay.remove();
+      onComplete();
+    }
+  }, 1000);
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
 function renderHeroSkeleton() {
   document.getElementById("heroSection").innerHTML = `
     <div class="hero-slide active" style="background:linear-gradient(90deg,#1a1a1a,#0a0a0a);">
@@ -690,6 +949,8 @@ function renderHeroSlider() {
       </div>`;
   }).join("");
 
+  // ⚡ Prefetch next 2 hero images
+  prefetchImages(sliderItems.slice(1, 3).map(i => i.backdrop || i.poster));
   startSlider(sliderItems.length);
 }
 
@@ -715,36 +976,24 @@ function startSlider(total) {
   }, 6000);
 }
 
-function preloadFirstHeroImage() {
-  const first = allContent.find(i => i.isSlider && !isUpcoming(i)) || allContent[0];
-  if (!first) return;
-  const url = first.backdrop || first.poster;
-  if (!url) return;
-  const link = document.createElement("link");
-  link.rel = "preload";
-  link.as = "image";
-  link.href = url;
-  link.fetchPriority = "high";
-  document.head.appendChild(link);
-}
-
 function renderContent(data = allContent) {
   const grid = document.getElementById("movieGrid");
   if (!data.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">No content found.</div>';
     return;
   }
-  grid.innerHTML = data.map(item => {
+  grid.innerHTML = data.map((item, idx) => {
     const status = getStatus(item);
     let badge = "";
     if (status === "upcoming") badge = '<span class="poster-status upcoming">Upcoming</span>';
     else if (status === "completed") badge = '<span class="poster-status completed">Completed</span>';
     const poster = item.poster || "https://placehold.co/400x600/1f1f1f/e50914?text=SHANFLIX";
+    const fp = idx < 3 ? 'fetchpriority="high"' : 'fetchpriority="low"';
     return `
       <div class="movie-card" onclick="openDetails('${escapeAttribute(item.id)}')">
         <div class="poster">
           <img src="${escapeAttribute(poster)}" alt="${escapeAttribute(item.title || 'Content')}"
-               loading="lazy" decoding="async"
+               loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" ${fp}
                onerror="this.src='https://placehold.co/400x600/1f1f1f/e50914?text=SHANFLIX'">
           <span class="poster-label">${escapeHTML(item.category || "Drama")}</span>
           ${badge}
@@ -755,6 +1004,9 @@ function renderContent(data = allContent) {
         </div>
       </div>`;
   }).join("");
+
+  // ⚡ Prefetch first 6 posters (likely visible)
+  prefetchImages(data.slice(0, 6).map(i => i.poster));
 }
 
 function filterCategory(category, button) {
@@ -834,7 +1086,7 @@ document.addEventListener("click", (e) => {
     const r = document.getElementById("searchResults");
     if (r) r.classList.remove("show");
   }
-});
+}, { passive: true });
 
 function populateLanguageDropdown(item) {
   const langs = getAvailableLanguages(item);
@@ -875,7 +1127,7 @@ function selectSeason(index, el) {
   list.querySelectorAll("li").forEach(li => li.classList.remove("active"));
   el.classList.add("active");
   document.getElementById("seasonDropdown").classList.remove("open");
-  
+
   const season = currentContent.seasons[index];
   if (season && season.episodes && season.episodes.length > 0) {
     playEpisode(index, 0);
@@ -893,7 +1145,6 @@ function openDetails(id) {
   currentContent = item;
   currentEpisode = null;
 
-  // Add History state for Back Button
   if (!history.state || !history.state.modalOpen) {
     history.pushState({ modalOpen: true }, "");
   }
@@ -941,7 +1192,7 @@ function openDetails(id) {
     } else {
       seasonCount.style.display = "block";
       seasonDropdown.style.display = "block";
-      episodeList.style.display = "flex"; // Note: This gets overridden by .ep-grid display:flex anyway
+      episodeList.style.display = "flex";
       seasonCount.textContent = seasons.length > 0 ? `${seasons.length} Season${seasons.length > 1 ? "s" : ""}` : "0 Seasons";
     }
     currentSeasonIndex = 0;
@@ -956,10 +1207,10 @@ function openDetails(id) {
           ${escapeHTML(s.name || "Season " + (i + 1))}
         </li>`).join("");
     }
-    
+
     document.getElementById("playerContainer").innerHTML =
       '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
-      
+
     if (seasons.length > 0 && seasons[0].episodes && seasons[0].episodes.length > 0) {
       playEpisode(0, 0);
     } else {
@@ -989,21 +1240,18 @@ function generateRelatedContent(currentItem) {
     const poster = item.poster || "https://placehold.co/400x600/1f1f1f/e50914?text=SHANFLIX";
     return `
       <div class="related-card" onclick="openDetails('${escapeAttribute(item.id)}')">
-        <img class="related-poster" src="${escapeAttribute(poster)}" loading="lazy" decoding="async"
+        <img class="related-poster" src="${escapeAttribute(poster)}" loading="lazy" decoding="async" fetchpriority="low"
              onerror="this.src='https://placehold.co/400x600/1f1f1f/e50914?text=SHANFLIX'">
         <div class="related-title">${escapeHTML(item.title)}</div>
       </div>`;
   }).join("");
+  prefetchImages(related.slice(0, 3).map(i => i.poster));
 }
 
 function closeModal() {
   const modal = document.getElementById("detailModal");
   if (!modal.classList.contains("show")) return;
-  
-  // Directly close modal and return to home interface
   forceCloseModal();
-  
-  // Clean up history state so browser back doesn't reopen the modal
   if (history.state && history.state.modalOpen) {
     history.replaceState(null, "");
   }
@@ -1017,7 +1265,6 @@ function forceCloseModal() {
   const pc = document.getElementById("playerContainer");
   if (pc) pc.innerHTML = '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
 
-  // Exit fullscreen & unlock orientation
   if (document.fullscreenElement) {
     document.exitFullscreen().catch(() => {});
   } else if (document.webkitFullscreenElement) {
@@ -1028,13 +1275,11 @@ function forceCloseModal() {
   }
 }
 
-// Handle Browser Back Button (Popstate)
 window.addEventListener("popstate", (e) => {
   if (document.getElementById("detailModal").classList.contains("show")) {
     forceCloseModal();
   }
 });
-
 
 function renderEpisodes() {
   if (!currentContent) return;
@@ -1049,7 +1294,10 @@ function renderEpisodes() {
   ).join("");
 }
 
-function playEpisode(seasonIndex, episodeIndex) {
+/* ============================================================
+   playEpisode — ADBLOCK CHECK + PRE-ROLL AD
+   ============================================================ */
+async function playEpisode(seasonIndex, episodeIndex) {
   if (!currentContent) return;
   const season = currentContent.seasons[seasonIndex];
   const episode = season.episodes[episodeIndex];
@@ -1067,9 +1315,9 @@ function playEpisode(seasonIndex, episodeIndex) {
       if (k) source = episode.sources[k];
     }
   }
-  
+
   const container = document.getElementById("playerContainer");
-  
+
   if (!source) {
     container.innerHTML = '<div class="player-placeholder">Video source not available.</div>';
     showToast("No video source available");
@@ -1083,10 +1331,25 @@ function playEpisode(seasonIndex, episodeIndex) {
   }
 
   preconnectToVideoDomain(source);
+  renderEpisodes();
 
-  const bgImage = currentContent.backdrop || currentContent.poster || "";
+  const adBlocked = await isAdBlockEnabled();
+
+  if (adBlocked) {
+    console.log("SHANFLIX: Adblock ON → playing video directly");
+    loadVideoPlayer(container, source, currentContent);
+  } else {
+    console.log("SHANFLIX: Adblock OFF → showing pre-roll ad");
+    showPreRollAd(container, () => {
+      loadVideoPlayer(container, source, currentContent);
+    });
+  }
+}
+
+function loadVideoPlayer(container, source, content) {
+  const bgImage = content.backdrop || content.poster || "";
   const bgStyle = bgImage ? `style="background-image: url('${escapeAttribute(bgImage)}');"` : "";
-  
+
   container.innerHTML = `
     <div class="video-loader-overlay" id="videoLoaderOverlay" ${bgStyle}>
       <div class="video-loader-content">
@@ -1100,13 +1363,10 @@ function playEpisode(seasonIndex, episodeIndex) {
   iframe.className = "video-frame";
   iframe.src = source;
   iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock";
-  
-  // Added orientation, gyroscope & accelerometer permissions for landscape mode
   iframe.allow = "autoplay; fullscreen; picture-in-picture; orientation; gyroscope; accelerometer";
-  
   iframe.allowFullscreen = true;
   iframe.referrerPolicy = "strict-origin-when-cross-origin";
-  
+
   iframe.addEventListener("load", () => {
     const loader = document.getElementById("videoLoaderOverlay");
     if (loader) {
@@ -1127,17 +1387,14 @@ function playEpisode(seasonIndex, episodeIndex) {
   });
 
   container.appendChild(iframe);
-
-  renderEpisodes();
 }
 
 /* ============================================================
-   FULLSCREEN ORIENTATION FIX (Forces Landscape)
+   FULLSCREEN ORIENTATION
    ============================================================ */
 function handleFullscreenChange() {
   const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
   if (isFullscreen) {
-    // Force landscape orientation if supported
     if (screen.orientation && screen.orientation.lock) {
       screen.orientation.lock('landscape').catch(err => {
         console.warn("Orientation lock failed:", err);
@@ -1152,7 +1409,6 @@ function handleFullscreenChange() {
 
 document.addEventListener('fullscreenchange', handleFullscreenChange);
 document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-
 
 /* =====================================
    FIREBASE — LOAD FROM ADMIN SCHEMA
@@ -1242,7 +1498,6 @@ async function loadRealtimeContent() {
     if (changed || !document.querySelector(".movie-card")) {
       renderContent();
       renderHeroSlider();
-      preloadFirstHeroImage();
     }
   } catch (e) {
     console.error("Realtime DB error:", e);
@@ -1254,6 +1509,9 @@ async function loadRealtimeContent() {
   }
 }
 
+/* ============================================================
+   ⚡ BOOT — paints instantly from cache, then Firebase in background
+   ============================================================ */
 function boot() {
   document.getElementById("year").textContent = new Date().getFullYear();
   window.addEventListener("scroll", () => {
@@ -1265,7 +1523,6 @@ function boot() {
     allContent = cached;
     renderContent();
     renderHeroSlider();
-    preloadFirstHeroImage();
   } else {
     renderGridSkeleton();
     renderHeroSkeleton();
@@ -1274,7 +1531,8 @@ function boot() {
 
 boot();
 
-document.addEventListener("DOMContentLoaded", async () => {
+/* ⚡ FIREBASE INIT — deferred to idle time so it doesn't block FCP */
+function initFirebase() {
   if (typeof firebase === "undefined") {
     if (!allContent.length) {
       document.getElementById("movieGrid").innerHTML =
@@ -1285,8 +1543,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     firebase.initializeApp(firebaseConfig);
     rtdb = firebase.database();
-  } catch(e) { console.error("Firebase init:", e); return; }
-  await loadRealtimeContent();
+    loadRealtimeContent();
+  } catch(e) { console.error("Firebase init:", e); }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(initFirebase, { timeout: 1200 });
+  } else {
+    setTimeout(initFirebase, 150);
+  }
 });
 
 document.addEventListener("keydown", e => {
@@ -1297,19 +1563,19 @@ document.addEventListener("keydown", e => {
 });
 
 /* ============================================================
-   FINAL SAFETY NET — any lingering redirect attempts
+   FINAL SAFETY NET
    ============================================================ */
 (function(){
   const _assign = window.location.assign.bind(window.location);
   const _replace = window.location.replace.bind(window.location);
-  
+
   function sameOrigin(url){
     try {
       const u = new URL(url, window.location.href);
       return u.origin === window.location.origin;
     } catch(e){ return false; }
   }
-  
+
   try {
     window.location.assign = function(url){
       if (sameOrigin(url)) return _assign(url);
