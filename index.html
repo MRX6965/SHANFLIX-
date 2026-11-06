@@ -220,8 +220,11 @@ nav a:hover{color:var(--muted)}
 .category-btn:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.08)}
 .category-btn.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 18px rgba(229,9,20,.45)}
 
+/* ✅ FIX 1: auto-fill grid — desktop poster size same as Android */
 .movie-grid{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-bottom:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:16px;padding-bottom:20px;
 }
 .movie-card{min-width:0;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.3,1);position:relative;contain:layout style;touch-action:manipulation}
 .movie-card:hover{transform:scale(1.05);z-index:3}
@@ -470,8 +473,9 @@ footer strong{color:var(--red)}
   .search-result-item:active{background:rgba(255,255,255,.12)}
 }
 
-@media(max-width:1100px){.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:820px){nav{display:none}.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){
+  nav{display:none}
+}
 @media(max-width:650px){
   header{
     height:calc(60px + var(--safe-top));
@@ -653,6 +657,7 @@ let currentLanguage = "Original";
 let currentSeasonIndex = 0;
 let currentSlideIndex = 0;
 let slideInterval = null;
+let currentPlayToken = 0;
 
 /* ADSTERRA CONFIG */
 const ADSTERRA_AD_CODE = `
@@ -780,6 +785,19 @@ function formatLangLabel(lang){
   return lang + " Dub";
 }
 
+/* ✅ FIX 2: DUB-specific episode helpers */
+function episodeHasLanguage(ep, lang){
+  if (!ep || !ep.sources || typeof ep.sources !== "object") return false;
+  if (ep.sources[lang]) return true;
+  return Object.keys(ep.sources).some(k =>
+    k.toLowerCase() === String(lang).toLowerCase() && ep.sources[k]
+  );
+}
+function findFirstEpisodeIndexWithLanguage(episodes, lang){
+  if (!Array.isArray(episodes)) return -1;
+  return episodes.findIndex(ep => episodeHasLanguage(ep, lang));
+}
+
 function showToast(msg){
   const t = document.getElementById("toast");
   if(!t) return;
@@ -790,7 +808,7 @@ function showToast(msg){
 }
 
 /* ============================================================
-   ADBLOCK DETECTION (BUG FIXED)
+   ADBLOCK DETECTION
    ============================================================ */
 function isAdBlockEnabled(){
   return new Promise((resolve) => {
@@ -817,9 +835,13 @@ function isAdBlockEnabled(){
 }
 
 /* ============================================================
-   PRE-ROLL AD
+   PRE-ROLL AD — Adsterra parent page এ থাকে (আগের মতোই)
    ============================================================ */
 function showPreRollAd(container, onComplete){
+  // Baseline snapshot — Adsterra এর body-level ghost nodes পরে clean করার জন্য
+  const baselineBodyNodes = new Set(Array.from(document.body.children));
+  window.__shanflixAdBaseline = baselineBodyNodes;
+
   const adOverlay = document.createElement('div');
   adOverlay.className = 'ad-overlay';
   adOverlay.innerHTML = `
@@ -862,10 +884,50 @@ function showPreRollAd(container, onComplete){
     if (progressBar) progressBar.style.width = ((AD_DURATION - secondsLeft) / AD_DURATION * 100) + '%';
     if (secondsLeft <= 0) {
       clearInterval(tick);
-      adOverlay.remove();
+      try {
+        slot.querySelectorAll('iframe').forEach(f => {
+          try { f.src = 'about:blank'; } catch(e){}
+        });
+      } catch(e){}
+      if (adOverlay.parentNode) adOverlay.remove();
       onComplete();
     }
   }, 1000);
+}
+
+/* ✅ FIX 3: Adsterra ghost nodes cleanup — player black screen থেকে বাঁচায় */
+function cleanAdGhostNodes(){
+  try {
+    const baseline = window.__shanflixAdBaseline;
+    if (!baseline) return;
+
+    const playerContainer = document.getElementById('playerContainer');
+    const modal = document.getElementById('detailModal');
+    const toast = document.getElementById('toast');
+    const header = document.getElementById('mainHeader');
+
+    Array.from(document.body.children).forEach(el => {
+      if (baseline.has(el)) return;
+      if (el === modal || el === toast || el === header) return;
+      if (playerContainer && (el === playerContainer || playerContainer.contains(el))) return;
+      try { el.remove(); } catch(e){}
+    });
+
+    // Orphan fixed-position overlays ক্লিন
+    document.querySelectorAll('body > div, body > iframe').forEach(el => {
+      if (el === modal || el === toast || el === header) return;
+      if (playerContainer && (el === playerContainer || playerContainer.contains(el))) return;
+      try {
+        const cs = window.getComputedStyle(el);
+        if (cs.position === 'fixed' && (parseInt(cs.zIndex) || 0) > 100 &&
+            el.id !== 'playerContainer' && !el.closest('#detailModal')) {
+          el.remove();
+        }
+      } catch(e){}
+    });
+
+    window.__shanflixAdBaseline = null;
+  } catch(e){}
 }
 
 /* ============================================================
@@ -1081,6 +1143,7 @@ function populateLanguageDropdown(item){
   document.getElementById("languageLabel").textContent = formatLangLabel(langs[0]);
 }
 
+/* ✅ FIX 2: selectLanguage — DUB switch এ সেই dub এ available first episode play */
 function selectLanguage(lang, el){
   currentLanguage = lang;
   document.getElementById("languageLabel").textContent = formatLangLabel(lang);
@@ -1089,15 +1152,27 @@ function selectLanguage(lang, el){
   el.classList.add("active");
   document.getElementById("languageDropdown").classList.remove("open");
 
-  if (currentEpisode && currentContent) {
-    const season = currentContent.seasons[currentSeasonIndex];
-    if (season && season.episodes) {
-      const epIndex = season.episodes.indexOf(currentEpisode);
-      if (epIndex > -1) playEpisode(currentSeasonIndex, epIndex);
+  if (!currentContent) return;
+  const season = currentContent.seasons[currentSeasonIndex];
+  if (!season || !season.episodes) return;
+
+  const currentIdx = season.episodes.indexOf(currentEpisode);
+  if (currentIdx > -1 && episodeHasLanguage(season.episodes[currentIdx], lang)) {
+    playEpisode(currentSeasonIndex, currentIdx);
+  } else {
+    const firstIdx = findFirstEpisodeIndexWithLanguage(season.episodes, lang);
+    if (firstIdx > -1) {
+      playEpisode(currentSeasonIndex, firstIdx);
+    } else {
+      currentEpisode = null;
+      document.getElementById("playerContainer").innerHTML =
+        '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
+      renderEpisodes();
     }
   }
 }
 
+/* ✅ FIX 2: selectSeason — season switch এ সেই season+dub এর first episode */
 function selectSeason(index, el){
   currentSeasonIndex = index;
   document.getElementById("seasonLabel").textContent = el.textContent;
@@ -1108,7 +1183,15 @@ function selectSeason(index, el){
 
   const season = currentContent.seasons[index];
   if (season && season.episodes && season.episodes.length > 0) {
-    playEpisode(index, 0);
+    const firstIdx = findFirstEpisodeIndexWithLanguage(season.episodes, currentLanguage);
+    if (firstIdx > -1) {
+      playEpisode(index, firstIdx);
+    } else {
+      currentEpisode = null;
+      document.getElementById("playerContainer").innerHTML =
+        '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
+      renderEpisodes();
+    }
   } else {
     currentEpisode = null;
     document.getElementById("playerContainer").innerHTML =
@@ -1189,8 +1272,10 @@ function openDetails(id){
     document.getElementById("playerContainer").innerHTML =
       '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
 
+    // ✅ FIX 2: first play এ current dub এর first available episode
     if (seasons.length > 0 && seasons[0].episodes && seasons[0].episodes.length > 0) {
-      playEpisode(0, 0);
+      const firstIdx = findFirstEpisodeIndexWithLanguage(seasons[0].episodes, currentLanguage);
+      playEpisode(0, firstIdx > -1 ? firstIdx : 0);
     } else {
       renderEpisodes();
     }
@@ -1240,6 +1325,7 @@ function forceCloseModal(){
   unlockBodyScroll();
   currentContent = null;
   currentEpisode = null;
+  currentPlayToken++;
   const pc = document.getElementById("playerContainer");
   if (pc) pc.innerHTML = '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
 
@@ -1261,24 +1347,39 @@ window.addEventListener("popstate", () => {
   }
 });
 
+/* ✅ FIX 2: renderEpisodes — শুধু current dub এর episodes দেখাবে */
 function renderEpisodes(){
   if (!currentContent) return;
   const season = (currentContent.seasons || [])[currentSeasonIndex];
   const list = document.getElementById("episodeList");
+
   if (!season || !season.episodes || !season.episodes.length) {
     list.innerHTML = "<p style='color:#888;font-size:12px;'>No episodes available.</p>";
     return;
   }
-  list.innerHTML = season.episodes.map((ep, i) =>
-    `<button class="ep-btn ${currentEpisode === ep ? "active" : ""}" onclick="playEpisode(${currentSeasonIndex},${i})">${String(i + 1).padStart(2, "0")}</button>`
+
+  const filtered = season.episodes
+    .map((ep, idx) => ({ ep, idx }))
+    .filter(({ ep }) => episodeHasLanguage(ep, currentLanguage));
+
+  if (!filtered.length) {
+    list.innerHTML = "<p style='color:#888;font-size:12px;'>No episodes for this language.</p>";
+    return;
+  }
+
+  list.innerHTML = filtered.map(({ ep, idx }) =>
+    `<button class="ep-btn ${currentEpisode === ep ? "active" : ""}" onclick="playEpisode(${currentSeasonIndex},${idx})">${String(idx + 1).padStart(2, "0")}</button>`
   ).join("");
 }
 
+/* ✅ FIX 3: playEpisode — token + ad ghost cleanup */
 async function playEpisode(seasonIndex, episodeIndex){
   if (!currentContent) return;
   const season = currentContent.seasons[seasonIndex];
   const episode = season.episodes[episodeIndex];
   currentEpisode = episode;
+
+  const myToken = ++currentPlayToken;
 
   let source = null;
   if (episode.sources && typeof episode.sources === "object") {
@@ -1311,17 +1412,23 @@ async function playEpisode(seasonIndex, episodeIndex){
   renderEpisodes();
 
   const adBlocked = await isAdBlockEnabled();
+  if (myToken !== currentPlayToken) return;
+
   if (adBlocked) {
     console.log("SHANFLIX: Adblock ON → playing video directly");
     loadVideoPlayer(container, source, currentContent);
   } else {
     console.log("SHANFLIX: Adblock OFF → showing pre-roll ad");
     showPreRollAd(container, () => {
+      if (myToken !== currentPlayToken) return;
+      // ✅ Adsterra body-level ghost nodes ক্লিন — player black screen থেকে বাঁচায়
+      cleanAdGhostNodes();
       loadVideoPlayer(container, source, currentContent);
     });
   }
 }
 
+/* ✅ FIX 3: loadVideoPlayer — sandbox REMOVED (desktop blackout এর মূল কারণ) */
 function loadVideoPlayer(container, source, content){
   const bgImage = content.backdrop || content.poster || "";
   const bgStyle = bgImage ? `style="background-image: url('${escapeAttribute(bgImage)}');"` : "";
@@ -1338,8 +1445,10 @@ function loadVideoPlayer(container, source, content){
   const iframe = document.createElement("iframe");
   iframe.className = "video-frame";
   iframe.src = source;
-  iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock";
-  iframe.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media; orientation; gyroscope; accelerometer";
+  // ❌ sandbox REMOVED — many embed players (voe, mixdrop, streamtape, filemoon)
+  //    detect sandbox and break playback after a while on desktop.
+  //    Security is preserved by window.open / location.assign / replace overrides.
+  iframe.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media; orientation; gyroscope; accelerometer; clipboard-write";
   iframe.setAttribute("allowfullscreen", "true");
   iframe.setAttribute("webkitallowfullscreen", "true");
   iframe.setAttribute("mozallowfullscreen", "true");
@@ -1347,12 +1456,16 @@ function loadVideoPlayer(container, source, content){
   iframe.setAttribute("webkit-playsinline", "true");
   iframe.referrerPolicy = "strict-origin-when-cross-origin";
 
-  iframe.addEventListener("load", () => {
+  const removeLoader = () => {
     const loader = document.getElementById("videoLoaderOverlay");
     if (loader) {
       loader.style.opacity = "0";
       setTimeout(() => loader.remove(), 300);
     }
+  };
+
+  iframe.addEventListener("load", () => {
+    removeLoader();
     try {
       iframe.contentWindow.addEventListener("click", (ev) => {
         const a = ev.target && ev.target.closest && ev.target.closest("a[target]");
@@ -1360,6 +1473,9 @@ function loadVideoPlayer(container, source, content){
       });
     } catch(e){}
   });
+
+  // Failsafe: if 'load' never fires, hide loader after 15s
+  setTimeout(removeLoader, 15000);
 
   container.appendChild(iframe);
 }
@@ -1522,6 +1638,7 @@ document.addEventListener("keydown", e => {
 
 /* ============================================================
    FINAL SAFETY NET
+   (⚠️ পুরনো 2s setInterval যা iframe এর ভিতরে ঢুকে playback break করত — REMOVED)
    ============================================================ */
 (function(){
   const _assign = window.location.assign.bind(window.location);
@@ -1544,15 +1661,6 @@ document.addEventListener("keydown", e => {
       showToast("External link blocked");
     };
   } catch(e){}
-
-  setInterval(() => {
-    const iframe = document.querySelector("#playerContainer iframe");
-    if (!iframe) return;
-    try {
-      iframe.contentDocument.querySelectorAll('a[target="_top"],a[target="_blank"],a[target="_parent"]')
-        .forEach(a => a.target = "_self");
-    } catch(e){}
-  }, 2000);
 })();
 </script>
 </body>
