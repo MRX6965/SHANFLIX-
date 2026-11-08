@@ -207,13 +207,15 @@ footer strong{color:var(--red)}
 .ep-btn:hover{background:#3a3a3a}
 .ep-btn.active{background:var(--red);border-color:var(--red);box-shadow:0 0 15px rgba(229,9,20,.4)}
 
+/* ✅ Fixed Related Grid to match Home Interface */
 .more-like-wrap{padding:24px 32px 32px;background:#181818;content-visibility:auto;contain-intrinsic-size:1px 400px;}
 .more-like-wrap h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:16px}
-.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.related-card{cursor:pointer;transition:transform .2s;touch-action:manipulation}
-.related-card:hover{transform:scale(1.03)}
-.related-poster{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;background:#222;margin-bottom:10px;display:block;border:1px solid rgba(255,255,255,0.05);}
-.related-title{font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));gap:16px;}
+.related-card{cursor:pointer;transition:transform .3s ease;position:relative;touch-action:manipulation;}
+.related-card:hover{transform:translateY(-4px);z-index:3;}
+.related-poster{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:#1f1f1f;margin-bottom:10px;display:block;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 15px rgba(0,0,0,0.6);transition:all .3s ease;}
+.related-card:hover .related-poster{box-shadow:0 12px 30px rgba(229,9,20,0.25), 0 0 0 2px var(--red);border-color:transparent;transform:scale(1.05);}
+.related-title{font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-top: 4px;}
 
 .toast{position:fixed;bottom:calc(28px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:#fff;color:#000;font-weight:700;font-size:13.5px;padding:13px 26px;border-radius:3px;z-index:400;display:none;box-shadow:0 10px 40px rgba(0,0,0,.7);max-width:90vw;text-align:center;}
 .toast.show{display:block;animation:toastIn .3s ease forwards}
@@ -243,6 +245,7 @@ footer strong{color:var(--red)}
   .movie-card:hover .poster img{transform:none}
   .movie-card:hover .poster::before{opacity:0}
   .related-card:hover{transform:none}
+  .related-card:hover .related-poster{box-shadow:0 4px 15px rgba(0,0,0,0.6);border-color:rgba(255,255,255,0.08);transform:none;}
   .category-btn:hover{border-color:rgba(255,255,255,.28);color:#d2d2d2;background:transparent}
   .select-trigger:hover{border-color:#444;background:#222}
   .ep-btn:hover{background:#2a2a2a}
@@ -289,7 +292,8 @@ footer strong{color:var(--red)}
   .select-trigger{padding:10px 12px;font-size:13px}
   .ep-btn{width:45px;height:36px;font-size:13px;flex-shrink:0}
   .more-like-wrap{padding:20px}
-  .related-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .related-grid{grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px;} /* মোবাইলে ৩টি কলাম, হোমের মতো */
+  .related-poster{border-radius:10px;margin-bottom:6px;}
   .related-title{font-size:11px}
   .player-placeholder.coming-soon .cs-title{font-size:16px;letter-spacing:4px}
   .player-placeholder.coming-soon .cs-icon{font-size:34px}
