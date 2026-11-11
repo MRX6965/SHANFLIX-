@@ -16,6 +16,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://vidlink.pro" crossorigin>
 <link rel="preconnect" href="https://www.vidcore.net" crossorigin>
+<link rel="preconnect" href="https://vidly.pro" crossorigin>
+<link rel="preconnect" href="https://2embed.skin" crossorigin>
+<link rel="preconnect" href="https://vidfast.vc" crossorigin>
+<link rel="preconnect" href="https://autoembed.me" crossorigin>
+<link rel="preconnect" href="https://vidspark.to" crossorigin>
+<link rel="preconnect" href="https://nontongo.win" crossorigin>
+<link rel="preconnect" href="https://embedwave.cc" crossorigin>
 <link rel="preconnect" href="https://image.tmdb.org" crossorigin>
 
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -201,8 +208,7 @@ footer strong{color:var(--red)}
 .select-trigger svg{width:12px;height:12px;flex-shrink:0;transition:transform .2s}
 .custom-select.open .select-trigger svg{transform:rotate(180deg)}
 
-/* FIXED: width max-content and min-width 100% so text is not cut off */
-.select-options{position:absolute;top:calc(100% + 4px);left:0;width:max-content;min-width:100%;max-width:280px;background:#1a1a1a;border:1px solid #444;border-radius:4px;list-style:none;padding:6px 0;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.95);display:none;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:9999;}
+.select-options{position:absolute;top:calc(100% + 4px);left:0;width:max-content;min-width:100%;max-width:280px;background:#1a1a1a;border:1px solid #444;border-radius:4px;list-style:none;padding:6px 0;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.95);display:none;max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:9999;}
 .custom-select.open .select-options{display:block;animation:dropFade .15s ease-out}
 @keyframes dropFade{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 .select-options li{padding:10px 16px;font-size:13px;color:#ccc;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;touch-action:manipulation;}
@@ -360,7 +366,7 @@ footer strong{color:var(--red)}
       <button class="category-btn active" onclick="filterCategory('All',this)">All</button>
       <button class="category-btn" onclick="filterCategory('Movie',this)">Movies</button>
       <button class="category-btn" onclick="filterCategory('TV Series',this)">TV Series</button>
-      <button class="category-btn" onclick="filterCategory('Drama',this)">Dramas</button>
+      <button class="category-btn" onclick="filterCategory('Drama',this)">Drama</button>
       <button class="category-btn" onclick="filterCategory('Anime',this)">Anime</button>
     </div>
   </div>
@@ -409,10 +415,7 @@ footer strong{color:var(--red)}
             <span id="serverLabel">Server 1</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
-          <ul class="select-options" id="serverOptionsList">
-            <li class="active" onclick="selectServer('https://vidlink.pro', 'Server 1', this)">Server 1 (VidLink)</li>
-            <li onclick="selectServer('https://www.vidcore.net', 'Server 2', this)">Server 2 (VidCore)</li>
-          </ul>
+          <ul class="select-options" id="serverOptionsList"></ul>
         </div>
 
         <div class="custom-select fixed-language" id="languageDropdown">
@@ -475,6 +478,39 @@ async function tmdbFetch(endpoint, params = {}) {
 }
 
 /* ============================================================
+   VIDEO SERVERS — 9 providers
+   ============================================================ */
+const VIDEO_SERVERS = [
+  { id:'vidlink',   name:'Server 1 (VidLink)',
+    movie: id => `https://vidlink.pro/movie/${id}`,
+    tv: (id,s,e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { id:'vidcore',   name:'Server 2 (VidCore)',
+    movie: id => `https://www.vidcore.net/movie/${id}`,
+    tv: (id,s,e) => `https://www.vidcore.net/tv/${id}/${s}/${e}` },
+  { id:'vidly',     name:'Server 3 (Vidly)',
+    movie: id => `https://vidly.pro/movie/${id}`,
+    tv: (id,s,e) => `https://vidly.pro/tv/${id}/${s}/${e}` },
+  { id:'2embed',    name:'Server 4 (2Embed)',
+    movie: id => `https://2embed.skin/embed/movie/${id}`,
+    tv: (id,s,e) => `https://2embed.skin/embed/tv/${id}/${s}/${e}` },
+  { id:'vidfast',   name:'Server 5 (VidFast)',
+    movie: id => `https://vidfast.vc/movie/${id}`,
+    tv: (id,s,e) => `https://vidfast.vc/tv/${id}/${s}/${e}` },
+  { id:'autoembed', name:'Server 6 (AutoEmbed)',
+    movie: id => `https://autoembed.me/movie/${id}`,
+    tv: (id,s,e) => `https://autoembed.me/tv/${id}/${s}/${e}` },
+  { id:'vidspark',  name:'Server 7 (VidSpark)',
+    movie: id => `https://vidspark.to/movie/${id}`,
+    tv: (id,s,e) => `https://vidspark.to/tv/${id}/${s}/${e}` },
+  { id:'nontongo',  name:'Server 8 (Nontongo)',
+    movie: id => `https://nontongo.win/embed/movie/${id}`,
+    tv: (id,s,e) => `https://nontongo.win/embed/tv/${id}/${s}/${e}` },
+  { id:'embedwave', name:'Server 9 (EmbedWave)',
+    movie: id => `https://embedwave.cc/embed/movie/${id}`,
+    tv: (id,s,e) => `https://embedwave.cc/embed/tv/${id}/${s}/${e}` }
+];
+
+/* ============================================================
    POPUP & REDIRECT BLOCKER
    ============================================================ */
 (function blockRedirects(){
@@ -513,7 +549,7 @@ let currentContent = null;
 let currentEpisode = null;
 let currentCategory = "All";
 let currentLanguage = "Original";
-let currentServerBase = "https://vidlink.pro"; 
+let currentServerId = "vidlink";
 let currentSeasonIndex = 0;
 let currentSlideIndex = 0;
 let slideInterval = null;
@@ -621,23 +657,20 @@ function isContentUpcoming(data, isMovie) {
       const d = new Date(data.release_date);
       return d > today;
     }
-    return true; // no release date = not yet released
+    return true;
   } else {
-    // TV series
     if (UPCOMING_STATUSES.includes(data.status)) return true;
-    if (data.last_episode_to_air) return false; // has at least one aired episode
+    if (data.last_episode_to_air) return false;
     if (data.first_air_date) {
       const d = new Date(data.first_air_date);
       if (d > today) return true;
-      // first_air_date in past but no episodes aired (edge case)
       if (data.number_of_episodes > 0) return false;
       return true;
     }
-    return true; // no date info = not yet aired
+    return true;
   }
 }
 
-/* Build TV seasons with only aired episodes (auto-published based on TMDB data) */
 function buildTVSeasons(data) {
   const today = new Date();
   today.setHours(23, 59, 59, 999);
@@ -652,7 +685,6 @@ function buildTVSeasons(data) {
   const result = [];
 
   for (const s of allSeasons) {
-    // Skip seasons with future air dates
     if (s.air_date) {
       const sd = new Date(s.air_date);
       if (sd > today) continue;
@@ -661,16 +693,12 @@ function buildTVSeasons(data) {
     let epCount = 0;
 
     if (lastSeasonNum === 0) {
-      // No last_episode_to_air info; if air_date has passed, assume season aired fully
       epCount = s.episode_count;
     } else if (s.season_number < lastSeasonNum) {
-      // Fully aired past season
       epCount = s.episode_count;
     } else if (s.season_number === lastSeasonNum) {
-      // Currently airing / latest aired season → only aired episodes
       epCount = lastEpNum;
     } else {
-      // Future season not aired yet
       continue;
     }
 
@@ -698,7 +726,6 @@ function mapTmdbToLocal(item, catType = "") {
     else category = "TV Series";
   }
 
-  // Determine upcoming status from available list data
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dateStr = item.release_date || item.first_air_date;
@@ -734,7 +761,17 @@ async function loadHomeContent(category, isAppend = false) {
     currentPage = 1;
     allContent = [];
     document.getElementById("movieGrid").innerHTML = '<div class="skeleton-card"></div>'.repeat(12);
-    if(category !== "All") document.getElementById("heroSection").innerHTML = "";
+    // Show hero skeleton while loading new category
+    document.getElementById("heroSection").innerHTML = `
+      <div class="hero-slide active" style="background:#141414;">
+        <div class="hero-content" style="max-width:620px;">
+          <div class="skeleton-text" style="width:200px;height:22px;margin-bottom:18px;"></div>
+          <div class="skeleton-text" style="width:80%;height:60px;margin-bottom:18px;"></div>
+          <div class="skeleton-text" style="width:90%;height:14px;margin-bottom:8px;"></div>
+          <div class="skeleton-text" style="width:70%;height:14px;margin-bottom:26px;"></div>
+          <div class="skeleton-text" style="width:150px;height:44px;"></div>
+        </div>
+      </div>`;
   }
 
   isLoading = true;
@@ -777,7 +814,7 @@ async function loadHomeContent(category, isAppend = false) {
       appendContentToGrid(uniqueNewItems);
     } else {
       renderContent(allContent);
-      if (category === "All") renderHeroSlider();
+      renderHeroSlider();   // ← always render slider on every category
     }
 
     currentPage++;
@@ -893,7 +930,6 @@ function appendContentToGrid(items) {
   grid.insertAdjacentHTML('beforeend', html);
 }
 
-/* Update the badge on an existing card if detail reveals a different upcoming state */
 function updateCardUpcomingStatus(id) {
   const item = allContent.find(x => String(x.id) === String(id));
   if (!item) return;
@@ -1043,28 +1079,35 @@ function populateLanguageDropdown(item){
 }
 
 /* ============================================================
-   SERVER SELECTION (modal only)
+   SERVER SELECTION (9 providers)
    ============================================================ */
-function syncServerDropdown(url) {
+function populateServerDropdown() {
+  const list = document.getElementById("serverOptionsList");
+  if (!list) return;
+  list.innerHTML = VIDEO_SERVERS.map(s =>
+    `<li class="${s.id === currentServerId ? 'active' : ''}" onclick="selectServer('${s.id}', this)">${escapeHTML(s.name)}</li>`
+  ).join("");
+}
+
+function syncServerDropdown(serverId) {
   const serverList = document.getElementById("serverOptionsList");
   const serverLabel = document.getElementById("serverLabel");
   if (!serverList) return;
-  const norm = String(url).replace(/\/$/, '');
+  const server = VIDEO_SERVERS.find(s => s.id === serverId);
+  if (!server) return;
   serverList.querySelectorAll("li").forEach(li => {
     const onclick = li.getAttribute("onclick") || "";
-    if (onclick.includes(`'${norm}'`) || onclick.includes(`'${norm}/'`)) {
-      li.classList.add("active");
-      const label = li.textContent.trim().split(" (")[0];
-      serverLabel.textContent = label;
-    } else {
-      li.classList.remove("active");
-    }
+    if (onclick.includes(`'${serverId}'`)) li.classList.add("active");
+    else li.classList.remove("active");
   });
+  serverLabel.textContent = server.name.split(' (')[0];
 }
 
-function selectServer(baseUrl, label, el) {
-  currentServerBase = String(baseUrl).replace(/\/$/, '');
-  document.getElementById("serverLabel").textContent = label;
+function selectServer(serverId, el) {
+  const server = VIDEO_SERVERS.find(s => s.id === serverId);
+  if (!server) return;
+  currentServerId = serverId;
+  document.getElementById("serverLabel").textContent = server.name.split(' (')[0];
   el.parentElement.querySelectorAll("li").forEach(li => li.classList.remove("active"));
   el.classList.add("active");
   document.getElementById("serverDropdown").classList.remove("open");
@@ -1155,7 +1198,6 @@ async function openDetails(id){
     const endpoint = isMovie ? `/movie/${item.tmdbId}` : `/tv/${item.tmdbId}`;
     const data = await tmdbFetch(endpoint, { append_to_response: 'credits' });
 
-    // Determine if upcoming based on fresh TMDB data
     const upcoming = isContentUpcoming(data, isMovie);
     item.status = upcoming ? 'upcoming' : 'completed';
 
@@ -1193,11 +1235,9 @@ async function openDetails(id){
     const resourcesHeader = document.getElementById("resourcesHeader");
     const uploadInfo = document.getElementById("uploadInfo");
 
-    // Update card badge to reflect fresh upcoming status
     updateCardUpcomingStatus(item.id);
 
     if (upcoming) {
-      // Hide everything related to playback controls
       newControls.style.display = "none";
       episodeList.style.display = "none";
       seasonDropdown.style.display = "none";
@@ -1214,17 +1254,14 @@ async function openDetails(id){
       return;
     }
 
-    // Show controls for published content
     if (resourcesHeader) resourcesHeader.style.display = "flex";
     if (uploadInfo) uploadInfo.style.display = "block";
     newControls.style.display = "flex";
     episodeList.style.display = "flex";
 
     if (!isMovie) {
-      // Build seasons with ONLY aired episodes
       item.seasons = buildTVSeasons(data);
       if (!item.seasons.length) {
-        // No aired episodes yet
         newControls.style.display = "none";
         episodeList.style.display = "none";
         if (resourcesHeader) resourcesHeader.style.display = "none";
@@ -1264,7 +1301,7 @@ async function openDetails(id){
         </li>`).join("");
     }
 
-    syncServerDropdown(currentServerBase);
+    syncServerDropdown(currentServerId);
 
     document.getElementById("playerContainer").innerHTML = '<div class="player-placeholder"><span>▶</span> VIDEO PLAYER</div>';
     
@@ -1359,11 +1396,11 @@ function buildServerUrl(content, seasonIndex, episodeIndex){
   const tmdbId = String(content.tmdbId).trim();
   if (!/^\d+$/.test(tmdbId)) return null;
 
-  const baseUrl = currentServerBase.replace(/\/$/, '');
+  const server = VIDEO_SERVERS.find(s => s.id === currentServerId) || VIDEO_SERVERS[0];
   const cat = (content.category || "").toLowerCase();
   
   if (cat.includes("movie")) {
-    return `${baseUrl}/movie/${tmdbId}`;
+    return server.movie(tmdbId);
   }
 
   const season = content.seasons && content.seasons[seasonIndex];
@@ -1372,13 +1409,12 @@ function buildServerUrl(content, seasonIndex, episodeIndex){
 
   const sNum = season.number || (seasonIndex + 1);
   const eNum = episode.number || (episodeIndex + 1);
-  return `${baseUrl}/tv/${tmdbId}/${sNum}/${eNum}`;
+  return server.tv(tmdbId, sNum, eNum);
 }
 
 function playEpisode(seasonIndex, episodeIndex){
   if (!currentContent) return;
 
-  // Block playback for upcoming content
   if (isUpcoming(currentContent)) {
     showComingSoonPlayer();
     return;
@@ -1484,6 +1520,7 @@ function setupInfiniteScroll() {
    ============================================================ */
 function boot(){
   document.getElementById("year").textContent = new Date().getFullYear();
+  populateServerDropdown();
   window.addEventListener("scroll", () => {
     document.getElementById("mainHeader").classList.toggle("scrolled", window.scrollY > 40);
   }, { passive: true });
