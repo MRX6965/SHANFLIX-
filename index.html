@@ -1,4 +1,4 @@
-;<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -201,10 +201,11 @@ footer strong{color:var(--red)}
 .select-trigger svg{width:12px;height:12px;flex-shrink:0;transition:transform .2s}
 .custom-select.open .select-trigger svg{transform:rotate(180deg)}
 
-.select-options{position:absolute;top:calc(100% + 4px);left:0;width:100%;background:#1a1a1a;border:1px solid #444;border-radius:4px;list-style:none;padding:6px 0;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.95);display:none;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:9999;}
+/* FIXED: width max-content and min-width 100% so text is not cut off */
+.select-options{position:absolute;top:calc(100% + 4px);left:0;width:max-content;min-width:100%;max-width:280px;background:#1a1a1a;border:1px solid #444;border-radius:4px;list-style:none;padding:6px 0;margin:0;box-shadow:0 10px 30px rgba(0,0,0,.95);display:none;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:9999;}
 .custom-select.open .select-options{display:block;animation:dropFade .15s ease-out}
 @keyframes dropFade{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-.select-options li{padding:10px 16px;font-size:13px;color:#ccc;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;touch-action:manipulation;}
+.select-options li{padding:10px 16px;font-size:13px;color:#ccc;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;touch-action:manipulation;}
 .select-options li:hover{background:#2a2a2a;color:#fff}
 .select-options li.active{color:var(--red);font-weight:700}
 .custom-select.fixed-language .select-trigger{cursor:default}
