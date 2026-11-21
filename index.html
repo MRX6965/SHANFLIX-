@@ -187,6 +187,12 @@ header.scrolled{background:rgba(5,10,20,0.85);backdrop-filter:blur(10px);-webkit
 .primary-btn{padding:13px 30px;border-radius:4px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:9px;background:var(--red);color:#fff;transition:background .2s;touch-action:manipulation;-webkit-user-select:none;user-select:none;box-shadow: 0 4px 15px rgba(37,99,235,0.4);}
 .primary-btn:hover{background:var(--red-hover);box-shadow: 0 6px 20px rgba(37,99,235,0.6);}
 .primary-btn.notify-btn{background:#f5a623;color:#000;box-shadow: 0 4px 15px rgba(245,166,35,0.4);}
+.dl-row{display:none;margin:14px 0 4px}
+.dl-btn{display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:8px;font-weight:700;font-size:14px;color:#fff;background:rgba(37,99,235,.18);border:1px solid var(--red);cursor:pointer;touch-action:manipulation}
+.dl-btn:hover{background:var(--red)}
+.dl-btn svg{width:18px;height:18px}
+.dl-btn small{font-weight:600;color:var(--muted);margin-left:2px}
+.dl-btn:hover small{color:#fff}
 .primary-btn.notify-btn:hover{background:#ffb733;}
 
 .section{padding:26px 4% 40px;position:relative;z-index:5;background:var(--bg)}
@@ -734,6 +740,7 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
         </div>
       </div>
       <div class="ep-grid" id="episodeList"></div>
+      <div class="dl-row" id="downloadRow"></div>
     </div>
     
     <div class="cast-section" id="castWrap">
@@ -1738,6 +1745,7 @@ window.addEventListener("popstate", () => {
 
 function renderEpisodes(){
   if (!currentContent) return;
+  updateDownloadButton();
   const season = (currentContent.seasons || [])[currentSeasonIndex];
   const list = document.getElementById("episodeList");
 
@@ -1882,6 +1890,74 @@ function setupInfiniteScroll() {
 }
 
 /* ============================================================
+   DOWNLOADS (only for titles listed in downloads.json)
+   Key format:  movie:<tmdbId>   |   tv:<tmdbId>:<season>:<episode>
+   ============================================================ */
+let downloadCatalog = {};
+
+async function loadDownloadCatalog() {
+  try {
+    const res = await fetch('downloads.json', { cache: 'no-cache' });
+    if (res.ok) downloadCatalog = await res.json();
+  } catch (e) { downloadCatalog = {}; }
+  updateDownloadButton();
+}
+
+function currentDownloadKey() {
+  const c = currentContent;
+  if (!c || !c.tmdbId) return null;
+  if ((c.category || '').toLowerCase().includes('movie')) return `movie:${c.tmdbId}`;
+  if (!currentEpisode) return null;
+  const seasons = c.seasons || [];
+  const si = seasons.findIndex(sn => (sn.episodes || []).includes(currentEpisode));
+  if (si === -1) return null;
+  const sn = seasons[si];
+  const ei = sn.episodes.indexOf(currentEpisode);
+  return `tv:${c.tmdbId}:${sn.number || si + 1}:${currentEpisode.number || ei + 1}`;
+}
+
+function updateDownloadButton() {
+  const row = document.getElementById('downloadRow');
+  if (!row) return;
+  const key = currentDownloadKey();
+  const entry = key && downloadCatalog[key];
+  if (!entry || !entry.url) { row.style.display = 'none'; row.innerHTML = ''; return; }
+  row.innerHTML = `<button class="dl-btn" onclick="startDownload('${escapeAttribute(key)}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download${entry.size ? ` <small>${escapeHTML(entry.size)}</small>` : ''}</button>`;
+  row.style.display = 'block';
+}
+
+function startDownload(key) {
+  const entry = downloadCatalog[key];
+  if (!entry || !entry.url) return;
+  let url;
+  try { url = new URL(entry.url, location.href); } catch (e) { return showToast('Invalid download link'); }
+  if (url.protocol !== 'https:') return showToast('Download link must be https');
+  // Vercel Blob: force attachment so browsers download instead of playing
+  if (url.hostname.endsWith('.blob.vercel-storage.com')) url.searchParams.set('download', '1');
+
+  const ext = (url.pathname.match(/\.(mp4|mkv|webm|m4v|mov|zip)$/i) || ['', 'mp4'])[1];
+  const label = (currentContent.title || 'SHANFLIX') + (key.startsWith('tv:') ? ' S' + key.split(':')[2].padStart(2,'0') + 'E' + key.split(':')[3].padStart(2,'0') : '');
+  const filename = label.replace(/[\\/:*?"<>|]+/g, '').trim() + '.' + ext;
+
+  // Android app: hand off to the system DownloadManager
+  if (window.ShanflixApp && typeof window.ShanflixApp.postMessage === 'function') {
+    window.ShanflixApp.postMessage(JSON.stringify({ action: 'download', url: url.href, filename }));
+    return;
+  }
+  // Browser
+  const a = document.createElement('a');
+  a.href = url.href;
+  a.download = filename;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast('Download started');
+}
+
+/* ============================================================
    PWA & INSTALL LOGIC (Optimized for TWA/APK)
    ============================================================ */
 let deferredInstallPrompt = null;
@@ -1951,6 +2027,7 @@ function boot(){
   renderPlatforms();
   populateServerDropdown();
   setupPWA();
+  loadDownloadCatalog();
 
   window.addEventListener("scroll", () => {
     document.getElementById("mainHeader").classList.toggle("scrolled", window.scrollY > 40);

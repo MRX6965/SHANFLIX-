@@ -1,6 +1,19 @@
 package com.shanflix.app;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.webkit.URLUtil;
+import android.widget.Toast;
+import androidx.webkit.JavaScriptReplyProxy;
+import androidx.webkit.WebMessageCompat;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+import org.json.JSONObject;
+import java.util.Collections;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -27,6 +40,7 @@ public class MainActivity extends Activity {
     private FrameLayout root;
     private View customView;
     private WebChromeClient.CustomViewCallback customCallback;
+    private String pendingUrl, pendingName;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -52,6 +66,23 @@ public class MainActivity extends Activity {
         s.setUserAgentString(s.getUserAgentString() + " SHANFLIXApp/1.0");
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, true);
+
+        // Downloads requested by the page (only from https://shanflix.vercel.app origin)
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(web, "ShanflixApp",
+                    Collections.singleton("https://" + HOST),
+                    (WebView v, WebMessageCompat msg, Uri origin, boolean isMain, JavaScriptReplyProxy reply) -> {
+                        try {
+                            JSONObject o = new JSONObject(msg.getData());
+                            if ("download".equals(o.optString("action"))) {
+                                requestDownload(o.getString("url"), o.optString("filename", ""));
+                            }
+                        } catch (Exception ignored) {}
+                    });
+        }
+        // Server-forced attachments (Content-Disposition) also go to DownloadManager
+        web.setDownloadListener((url, ua, cd, mime, len) ->
+                requestDownload(url, URLUtil.guessFileName(url, cd, mime)));
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -105,6 +136,41 @@ public class MainActivity extends Activity {
             Uri data = getIntent() != null ? getIntent().getData() : null;
             web.loadUrl(data != null ? data.toString() : HOME);
         }
+    }
+
+    private void requestDownload(String url, String name) {
+        if (url == null || !url.startsWith("https://")) return;
+        if (name == null || name.isEmpty()) name = URLUtil.guessFileName(url, null, null);
+        if (Build.VERSION.SDK_INT <= 28 &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            pendingUrl = url; pendingName = name;
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 7);
+            return;
+        }
+        enqueue(url, name);
+    }
+
+    private void enqueue(String url, String name) {
+        try {
+            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
+            r.setTitle(name);
+            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name);
+            r.setAllowedOverMetered(true);
+            ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(r);
+            runOnUiThread(() -> Toast.makeText(this, "Download started — see notifications", Toast.LENGTH_LONG).show());
+        } catch (Exception e) {
+            runOnUiThread(() -> Toast.makeText(this, "Download failed", Toast.LENGTH_LONG).show());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        if (code == 7 && results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED && pendingUrl != null) {
+            enqueue(pendingUrl, pendingName);
+        }
+        pendingUrl = pendingName = null;
     }
 
     @SuppressWarnings("deprecation")

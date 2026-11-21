@@ -1,0 +1,10 @@
+{
+  "movie:000000": {
+    "url": "https://your-storage.example.com/movies/example.mp4",
+    "size": "1.2 GB"
+  },
+  "tv:000000:1:1": {
+    "url": "https://your-storage.example.com/series/example-s01e01.mp4",
+    "size": "450 MB"
+  }
+}

@@ -1,5 +1,5 @@
 /* SHANFLIX service worker */
-const VERSION = 'shanflix-v2';
+const VERSION = 'shanflix-v3';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
@@ -26,6 +26,9 @@ self.addEventListener('fetch', e => {
 
   // Never intercept video streams / player embeds / range requests
   if (url.hostname.endsWith('vidsync.pro') || req.headers.has('range')) return;
+
+  // Download catalog must always be fresh
+  if (url.origin === location.origin && url.pathname.endsWith('/downloads.json')) return;
 
   // Page navigations: network first, fall back to cache, then offline page
   if (req.mode === 'navigate') {
