@@ -12,6 +12,12 @@ import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
+import android.app.AlertDialog;
+import android.content.pm.PackageInfo;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.json.JSONObject;
 import java.util.Collections;
 import android.app.Activity;
@@ -136,6 +142,42 @@ public class MainActivity extends Activity {
             Uri data = getIntent() != null ? getIntent().getData() : null;
             web.loadUrl(data != null ? data.toString() : HOME);
         }
+        checkForUpdate();
+    }
+
+    /** Compares installed versionCode with https://shanflix.vercel.app/app-version.json */
+    private void checkForUpdate() {
+        new Thread(() -> {
+            try {
+                HttpURLConnection c = (HttpURLConnection) new URL(HOME + "app-version.json").openConnection();
+                c.setConnectTimeout(8000);
+                c.setReadTimeout(8000);
+                c.setUseCaches(false);
+                BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = r.readLine()) != null) sb.append(line);
+                r.close();
+                JSONObject o = new JSONObject(sb.toString());
+                PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+                long installed = Build.VERSION.SDK_INT >= 28 ? pi.getLongVersionCode() : pi.versionCode;
+                if (o.optLong("versionCode", 0) > installed) {
+                    final String url = o.optString("url", "");
+                    final String msg = "Version " + o.optString("versionName", "") + " is available.\n" + o.optString("notes", "");
+                    runOnUiThread(() -> {
+                        if (isFinishing() || !url.startsWith("https://")) return;
+                        new AlertDialog.Builder(this)
+                                .setTitle("Update available")
+                                .setMessage(msg)
+                                .setPositiveButton("Update", (d, w) -> {
+                                    try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) {}
+                                })
+                                .setNegativeButton("Later", null)
+                                .show();
+                    });
+                }
+            } catch (Exception ignored) { }
+        }).start();
     }
 
     private void requestDownload(String url, String name) {

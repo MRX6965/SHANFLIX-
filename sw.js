@@ -1,8 +1,9 @@
 /* SHANFLIX service worker */
-const VERSION = 'shanflix-v3';
+const VERSION = 'shanflix-v4';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
+  "app.js", "features.js", "sync.js", "config.js",
   './', 'index.html', 'offline.html', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'
 ];
@@ -45,6 +46,15 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(req)
         .then(res => { if (res.ok) caches.open(RUNTIME).then(c => c.put(req, res.clone())); return res; })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Own scripts/data: network first so updates arrive immediately
+  if (url.origin === location.origin && /\.(js|json|webmanifest)$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(req).then(res => { if (res.ok) caches.open(RUNTIME).then(c => c.put(req, res.clone())); return res; })
         .catch(() => caches.match(req))
     );
     return;
