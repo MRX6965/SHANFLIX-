@@ -13,8 +13,10 @@
 <meta name="msapplication-TileColor" content="#050a14">
 <title>SHANFLIX — Your World of Entertainment</title>
 
-<link rel="manifest" id="manifestLink">
-<link rel="apple-touch-icon" id="appleTouchIcon">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://vidsync.pro" crossorigin>
@@ -657,20 +659,26 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
     <polyline points="7 10 12 15 17 10"></polyline>
     <line x1="12" y1="15" x2="12" y2="3"></line>
   </svg>
-  Download APK
+  Install App
 </div>
 
 <div class="install-modal" id="installModal">
   <div class="install-modal-box">
     <h3>Install SHANFLIX</h3>
-    <p>To get the real app experience without browser messages, install the APK directly or add to home screen.</p>
+    <p>Install SHANFLIX on your phone for a full-screen app experience. It works the same in the app and in the browser.</p>
     
     <div class="instruction-step" id="androidInstructions" style="display: none;">
-      <strong>For Android (Chrome/Edge):</strong><br>
+      <strong>For Android (Chrome/Edge) &amp; Desktop:</strong><br>
       1. Tap the 3-dots menu at the top right.<br>
       2. Select <b>"Install app"</b> or <b>"Add to Home screen"</b>.
     </div>
     
+    <div class="instruction-step" id="apkDownload">
+      <strong>Android APK:</strong><br>
+      <a href="https://github.com/MRX6965/SHANFLIX-/releases/download/apk-latest/SHANFLIX.apk" style="color:var(--red-hover);font-weight:700">Download SHANFLIX.apk</a><br>
+      <small>Open the file after download and allow "Install unknown apps" if asked.</small>
+    </div>
+
     <div class="instruction-step" id="iosInstructions" style="display: none;">
       <strong>For iPhone (Safari):</strong><br>
       1. Tap the <b>Share</b> icon at the bottom.<br>
@@ -1878,107 +1886,17 @@ function setupInfiniteScroll() {
    ============================================================ */
 let deferredInstallPrompt = null;
 
-function getAppIconDataURL() {
-  const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
-      <stop offset="0%" stop-color="#0a192f"/>
-      <stop offset="100%" stop-color="#050a14"/>
-    </radialGradient>
-    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#1d4ed8"/>
-    </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#bg)" />
-  <circle cx="256" cy="240" r="180" fill="none" stroke="#3b82f6" stroke-width="10" filter="url(#glow)"/>
-  <path d="M 200 140 L 430 240 L 200 340 Z" fill="url(#blueGrad)" />
-  <rect x="140" y="110" width="60" height="240" rx="30" fill="#020408" stroke="#3b82f6" stroke-width="4"/>
-  <rect x="155" y="135" width="15" height="15" rx="2" fill="#3b82f6"/>
-  <rect x="155" y="175" width="15" height="15" rx="2" fill="#3b82f6"/>
-  <rect x="155" y="215" width="15" height="15" rx="2" fill="#3b82f6"/>
-  <rect x="155" y="255" width="15" height="15" rx="2" fill="#3b82f6"/>
-  <rect x="155" y="295" width="15" height="15" rx="2" fill="#3b82f6"/>
-  <path d="M 190 200 L 260 200 L 260 250 L 310 250 L 230 320 L 150 250 L 190 250 Z" fill="#3b82f6" />
-  <text x="256" y="465" font-family="'Bebas Neue', Impact, Arial, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" letter-spacing="2">
-    <tspan fill="#3b82f6">SHAN</tspan><tspan fill="#ffffff">FLIX</tspan>
-  </text>
-</svg>`;
-  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-}
-
 function setupPWA() {
-  try {
-    const iconDataUrl = getAppIconDataURL();
-
-    const appleIcon = document.getElementById('appleTouchIcon');
-    if (appleIcon) appleIcon.href = iconDataUrl;
-
-    const manifest = {
-      id: "/",
-      name: "SHANFLIX — Your World of Entertainment",
-      short_name: "SHANFLIX",
-      description: "Stream movies, TV series, drama, anime and more.",
-      start_url: "./",
-      scope: "./",
-      display: "standalone",
-      display_override: ["window-controls-overlay", "standalone"],
-      orientation: "portrait-primary",
-      background_color: "#050a14",
-      theme_color: "#2563eb",
-      categories: ["entertainment", "video"],
-      icons: [
-        { src: iconDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any" },
-        { src: iconDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any" },
-        { src: iconDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "maskable" },
-        { src: iconDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "maskable" }
-      ],
-      screenshots: []
-    };
-
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.getElementById('manifestLink');
-    if (link) link.href = url;
-
-    if ('serviceWorker' in navigator) {
-      try {
-        const swCode = `
-          const CACHE_NAME = 'shanflix-v1';
-          const ASSETS = ['./'];
-          
-          self.addEventListener('install', e => {
-            self.skipWaiting();
-            e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
-          });
-          
-          self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-          
-          self.addEventListener('fetch', e => {
-            if (e.request.method !== 'GET') return;
-            e.respondWith(
-              caches.match(e.request).then(response => {
-                return response || fetch(e.request).catch(() => new Response('Offline', { status: 503 }));
-              })
-            );
-          });
-        `;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-          .then(() => console.log('[SHANFLIX] SW registered'))
-          .catch(err => console.log('[SHANFLIX] SW not registered:', err.message));
-      } catch(e) {}
-    }
-  } catch(e) {
-    console.error('[SHANFLIX] PWA setup failed:', e);
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('[SHANFLIX] SW registered'))
+        .catch(err => console.log('[SHANFLIX] SW not registered:', err.message));
+    });
   }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone || /SHANFLIXApp/.test(navigator.userAgent);
   
   if (isStandalone) {
     const btn = document.getElementById('installBtn');
