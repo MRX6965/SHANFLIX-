@@ -606,6 +606,12 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
   .modal-player-wrap{border-radius:0;border-bottom:0;aspect-ratio:auto;height:100vh;height:100dvh;max-height:none}
   .modal-info-wrap,.cast-section,.modal-box>div:not(.modal-player-wrap){padding-left:max(32px,calc((100% - 1200px)/2));padding-right:max(32px,calc((100% - 1200px)/2))}
 }
+
+/* Smooth playback: remove GPU-heavy effects & hidden page work while a title is open */
+body.player-open > *:not(.modal):not(.toast):not(.install-modal):not(.ab-modal):not(script):not(style){display:none!important}
+body.player-open .modal,body.player-open .modal-box,body.player-open .close,body.player-open .video-loader-overlay::before{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.player-open .modal-box{background:#0a0f1e}
+.modal-player-wrap{transform:translateZ(0)}
 </style>
 </head>
 
@@ -891,6 +897,7 @@ let _scrollLocked = false;
 function lockBodyScroll(){
   if(_scrollLocked) return;
   _scrollPos = window.scrollY || window.pageYOffset || 0;
+  document.body.classList.add('player-open');
   document.body.style.position = 'fixed';
   document.body.style.top = `-${_scrollPos}px`;
   document.body.style.left = '0';
@@ -900,6 +907,7 @@ function lockBodyScroll(){
 }
 function unlockBodyScroll(){
   if(!_scrollLocked) return;
+  document.body.classList.remove('player-open');
   document.body.style.position = '';
   document.body.style.top = '';
   document.body.style.left = '';
