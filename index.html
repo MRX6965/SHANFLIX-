@@ -598,6 +598,14 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
 .ab-btn{width:100%;padding:15px;border:0;border-radius:12px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(90deg,#6366f1,#a855f7);font-family:inherit}
 .ab-btn:active{transform:scale(.99)}
 .ab-bait{position:absolute!important;left:-9999px;top:-9999px;width:10px;height:10px}
+
+/* Full-screen detail/player view (desktop & tablet) */
+@media(min-width:651px){
+  .modal{background:var(--bg-black)}
+  .modal-box{max-width:none;width:100%;margin:0;border-radius:0;border:0;box-shadow:none;min-height:100vh;min-height:100dvh;animation:none}
+  .modal-player-wrap{border-radius:0;border-bottom:0;aspect-ratio:auto;height:100vh;height:100dvh;max-height:none}
+  .modal-info-wrap,.cast-section,.modal-box>div:not(.modal-player-wrap){padding-left:max(32px,calc((100% - 1200px)/2));padding-right:max(32px,calc((100% - 1200px)/2))}
+}
 </style>
 </head>
 
@@ -681,7 +689,6 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
 </div>
 
 
-<div class="ab-bait adsbox ad-banner adsbygoogle pub_300x250 textAd text-ad" id="adBait">&nbsp;</div>
 <div class="ab-modal" id="adblockModal" role="dialog" aria-modal="true" aria-labelledby="abTitle">
   <div class="ab-box">
     <div class="ab-emoji">🕵️</div>
@@ -2006,25 +2013,45 @@ function showAdblockModal() {
 
 function detectAdblock() {
   if (/SHANFLIXApp/.test(navigator.userAgent)) return; // app has no extensions
-  let blocked = false, done = 0;
-  const finish = () => { if (++done === 2 && blocked) showAdblockModal(); };
+  // Test switch: open the site with ?adblock=test to force the popup
+  if (/[?&]adblock=test/.test(location.search)) { try { sessionStorage.removeItem('adblockNoticeSeen'); } catch (e) {} showAdblockModal(); return; }
 
-  // 1) Bait element hidden by cosmetic filters
-  setTimeout(() => {
-    const b = document.getElementById('adBait');
-    if (!b) { blocked = true; }
-    else {
-      const cs = getComputedStyle(b);
-      if (b.offsetHeight === 0 || b.offsetParent === null && cs.position !== 'fixed' && cs.position !== 'absolute' ||
-          cs.display === 'none' || cs.visibility === 'hidden') blocked = true;
-    }
-    finish();
-  }, 400);
+  const reasons = [];
 
-  // 2) Ad script request blocked by network filters
-  fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
-    .catch(() => { blocked = true; })
-    .finally(finish);
+  // 1) Bait elements hidden by cosmetic filters
+  const baits = [];
+  ['adsbox ad-banner adsbygoogle', 'ad-placement ad_unit advert banner_ad', 'google-ad sponsor textads'].forEach((cls, i) => {
+    const d = document.createElement('div');
+    d.className = cls + ' pub_300x250';
+    if (i === 1) d.id = 'ad-banner';
+    d.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:300px;height:250px;';
+    d.innerHTML = '&nbsp;';
+    document.body.appendChild(d);
+    baits.push(d);
+  });
+  const baitCheck = new Promise(res => setTimeout(() => {
+    baits.forEach(d => {
+      const cs = getComputedStyle(d);
+      if (!d.isConnected || d.offsetHeight === 0 || cs.display === 'none' || cs.visibility === 'hidden') reasons.push('bait');
+      d.remove();
+    });
+    res();
+  }, 500));
+
+  // 2) Ad network requests blocked
+  const urls = [
+    'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
+    'https://googleads.g.doubleclick.net/pagead/id',
+    'https://static.doubleclick.net/instream/ad_status.js'
+  ];
+  const netChecks = urls.map(u =>
+    fetch(u, { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(() => { reasons.push('net:' + u); })
+  );
+
+  Promise.all([baitCheck, ...netChecks]).then(() => {
+    console.log('[SHANFLIX] adblock check:', reasons.length ? reasons : 'none detected');
+    if (reasons.length) showAdblockModal();
+  });
 }
 
 /* ============================================================
