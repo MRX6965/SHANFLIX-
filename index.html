@@ -586,6 +586,18 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
   .download-fab { padding: 8px 14px; font-size: 12px; bottom: calc(15px + var(--safe-bottom)); right: 10px; }
 }
 @media(max-width:380px){.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}}
+
+/* Ad-blocker notice */
+.ab-modal{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,4,8,.78);backdrop-filter:blur(4px)}
+.ab-modal.show{display:flex}
+.ab-box{width:100%;max-width:560px;background:#0f172a;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:30px 28px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:"Hind Siliguri",Inter,sans-serif}
+.ab-emoji{font-size:54px;line-height:1;margin-bottom:10px}
+.ab-box h3{font-size:26px;font-weight:700;color:#fff;margin-bottom:14px}
+.ab-box p{font-size:16px;line-height:1.7;color:#e2e8f0;margin-bottom:14px}
+.ab-tip{background:rgba(30,58,138,.25);border:1px solid rgba(148,163,184,.3);border-radius:12px;padding:14px 16px;text-align:left;font-size:14px;line-height:1.7;color:#e2e8f0;margin:6px 0 20px}
+.ab-btn{width:100%;padding:15px;border:0;border-radius:12px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(90deg,#6366f1,#a855f7);font-family:inherit}
+.ab-btn:active{transform:scale(.99)}
+.ab-bait{position:absolute!important;left:-9999px;top:-9999px;width:10px;height:10px}
 </style>
 </head>
 
@@ -666,6 +678,19 @@ footer{margin-top:70px;padding:48px 4% calc(40px + var(--safe-bottom));backgroun
     <line x1="12" y1="15" x2="12" y2="3"></line>
   </svg>
   Install App
+</div>
+
+
+<div class="ab-bait adsbox ad-banner adsbygoogle pub_300x250 textAd text-ad" id="adBait">&nbsp;</div>
+<div class="ab-modal" id="adblockModal" role="dialog" aria-modal="true" aria-labelledby="abTitle">
+  <div class="ab-box">
+    <div class="ab-emoji">🕵️</div>
+    <h3 id="abTitle">ধরা পড়ে গেছ! 😏</h3>
+    <p>তুমি <b>Ad-blocker</b> দিয়ে লুকিয়ে এসেছ, কিন্তু আমরা ঠিকই ধরে ফেলেছি 😎</p>
+    <p>সমস্যা নেই, সাইট দিব্যি চলবে! শুধু অ্যাড খুললে ভড়কে যেও না 👇</p>
+    <div class="ab-tip">💡 <b>টিপ:</b> কোনো এডস ওপেন হলে ভয় পাবেন না — একবার <b>Back</b> করে আবার ক্লিক করলেই আসল <b>Download / Watch</b> পেজ খুলবে!</div>
+    <button class="ab-btn" onclick="closeAdblockModal()">ঠিক আছে, বুঝলাম 👍</button>
+  </div>
 </div>
 
 <div class="install-modal" id="installModal">
@@ -1958,6 +1983,51 @@ function startDownload(key) {
 }
 
 /* ============================================================
+   AD-BLOCKER NOTICE
+   ============================================================ */
+function closeAdblockModal() {
+  const m = document.getElementById('adblockModal');
+  if (m) m.classList.remove('show');
+  try { sessionStorage.setItem('adblockNoticeSeen', '1'); } catch (e) {}
+  unlockBodyScrollSafe();
+}
+function unlockBodyScrollSafe() { try { if (!document.getElementById('detailModal').classList.contains('show')) document.body.style.overflow = ''; } catch (e) {} }
+
+function showAdblockModal() {
+  try { if (sessionStorage.getItem('adblockNoticeSeen')) return; } catch (e) {}
+  if (!document.getElementById('bnFont')) {
+    const l = document.createElement('link');
+    l.id = 'bnFont'; l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap';
+    document.head.appendChild(l);
+  }
+  document.getElementById('adblockModal').classList.add('show');
+}
+
+function detectAdblock() {
+  if (/SHANFLIXApp/.test(navigator.userAgent)) return; // app has no extensions
+  let blocked = false, done = 0;
+  const finish = () => { if (++done === 2 && blocked) showAdblockModal(); };
+
+  // 1) Bait element hidden by cosmetic filters
+  setTimeout(() => {
+    const b = document.getElementById('adBait');
+    if (!b) { blocked = true; }
+    else {
+      const cs = getComputedStyle(b);
+      if (b.offsetHeight === 0 || b.offsetParent === null && cs.position !== 'fixed' && cs.position !== 'absolute' ||
+          cs.display === 'none' || cs.visibility === 'hidden') blocked = true;
+    }
+    finish();
+  }, 400);
+
+  // 2) Ad script request blocked by network filters
+  fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+    .catch(() => { blocked = true; })
+    .finally(finish);
+}
+
+/* ============================================================
    PWA & INSTALL LOGIC (Optimized for TWA/APK)
    ============================================================ */
 let deferredInstallPrompt = null;
@@ -2028,6 +2098,7 @@ function boot(){
   populateServerDropdown();
   setupPWA();
   loadDownloadCatalog();
+  detectAdblock();
 
   window.addEventListener("scroll", () => {
     document.getElementById("mainHeader").classList.toggle("scrolled", window.scrollY > 40);
@@ -2050,6 +2121,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     closeModal();
     closeInstallModal();
+    closeAdblockModal();
   }
 });
 </script>
