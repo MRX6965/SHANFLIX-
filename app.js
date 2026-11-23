@@ -25,7 +25,13 @@ async function tmdbFetch(endpoint, params = {}) {
    VIDEO SERVERS — VidSync only
    ============================================================ */
 const VIDEO_SERVERS = [
-  { id:'vidsync',   name:'Server 1 (VidSync)',
+  { id:'vidlink',   name:'Server 1 (VidLink)',
+    movie: id => `https://vidlink.pro/movie/${id}`,
+    tv: (id,s,e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { id:'vidrift',   name:'Server 2 (VidRift)',
+    movie: id => `https://embed.vidrift.net/embed/movie/${id}`,
+    tv: (id,s,e) => `https://embed.vidrift.net/embed/tv/${id}/${s}/${e}` },
+  { id:'vidsync',   name:'Server 3 (VidSync)',
     movie: id => `https://vidsync.pro/movie/${id}`,
     tv: (id,s,e) => `https://vidsync.pro/tv/${id}/${s}/${e}` }
 ];
@@ -69,7 +75,7 @@ let searchResultsCache = [];
 let currentContent = null;
 let currentEpisode = null;
 let currentCategory = "All";
-let currentServerId = "vidsync";
+let currentServerId = "vidlink";
 let currentSeasonIndex = 0;
 let currentSlideIndex = 0;
 let slideInterval = null;

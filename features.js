@@ -254,8 +254,15 @@
       box.className = 'sf-stream-err';
       box.innerHTML = `<h3>${navigator.onLine ? 'Video is taking too long' : "You're offline"}</h3>
         <p>${navigator.onLine ? 'The player did not respond. Check your connection and try again.' : 'Reconnect to the internet and try again.'}</p>
-        <button class="err-btn" type="button">Reload player</button>`;
-      $('button', box).onclick = () => { box.remove(); iframe.src = source; };
+        <button class="err-btn" type="button" data-reload>Reload player</button>
+        <button class="err-btn" type="button" data-next style="margin-top:8px;background:transparent;border:1px solid var(--glass-border)">Try another server</button>`;
+      $('[data-reload]', box).onclick = () => { box.remove(); iframe.src = source; };
+      $('[data-next]', box).onclick = () => {
+        const i = VIDEO_SERVERS.findIndex(x => x.id === currentServerId);
+        const n = (i + 1) % VIDEO_SERVERS.length;
+        const li = $$('#serverOptionsList li')[n];
+        if (li) selectServer(VIDEO_SERVERS[n].id, li);
+      };
       container.appendChild(box);
     }, 12000);
   };
@@ -283,17 +290,54 @@
     const bar = document.createElement('div');
     bar.id = 'sfFilters';
     bar.className = 'sf-filters';
-    bar.innerHTML = `
-      <select id="fType" aria-label="Type"><option value="">All types</option><option value="movie">Movies</option><option value="tv">TV</option></select>
-      <select id="fGenre" aria-label="Genre"><option value="">Any genre</option>${GENRES.map((g, i) => `<option value="${i}">${g[0]}</option>`).join('')}</select>
-      <select id="fYear" aria-label="Year"><option value="">Any year</option>${years.map(y => `<option value="${y}">${y}</option>`).join('')}<option value="old">Before ${years[years.length - 1]}</option></select>
-      <select id="fLang" aria-label="Language"><option value="">Any language</option>${LANGS.map(l => `<option value="${l[0]}">${l[1]}</option>`).join('')}</select>
-      <select id="fRate" aria-label="Minimum rating"><option value="">Any rating</option><option value="5">5+ ★</option><option value="6">6+ ★</option><option value="7">7+ ★</option><option value="8">8+ ★</option></select>
-      <button type="button" id="fReset" class="f-reset">Reset</button>`;
+    const FIELDS = [
+      ['fType', [['', 'All types'], ['movie', 'Movies'], ['tv', 'TV']]],
+      ['fGenre', [['', 'Any genre']].concat(GENRES.map((g, i) => [String(i), g[0]]))],
+      ['fYear', [['', 'Any year']].concat(years.map(y => [String(y), String(y)]), [['old', 'Before ' + years[years.length - 1]]])],
+      ['fLang', [['', 'Any language']].concat(LANGS)],
+      ['fRate', [['', 'Any rating'], ['5', '5+ ★'], ['6', '6+ ★'], ['7', '7+ ★'], ['8', '8+ ★']]]
+    ];
+    // Custom dropdowns: the option list opens inside the page, not as a native popup
+    FIELDS.forEach(([id, opts]) => {
+      const dd = document.createElement('div');
+      dd.className = 'custom-select sf-dd';
+      dd.id = id;
+      dd.dataset.value = '';
+      dd.innerHTML = `<button type="button" class="select-trigger" onclick="toggleDropdown('${id}')">
+          <span>${escapeHTML(opts[0][1])}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button><ul class="select-options"></ul>`;
+      const ul = $('ul', dd);
+      opts.forEach(([val, label], i) => {
+        const li = document.createElement('li');
+        li.textContent = label;
+        if (i === 0) li.classList.add('active');
+        li.onclick = () => {
+          dd.dataset.value = val;
+          $('.select-trigger span', dd).textContent = label;
+          $$('li', ul).forEach(x => x.classList.remove('active'));
+          li.classList.add('active');
+          dd.classList.remove('open');
+          applyFilters();
+        };
+        ul.appendChild(li);
+      });
+      bar.appendChild(dd);
+    });
+    const rb = document.createElement('button');
+    rb.type = 'button'; rb.id = 'fReset'; rb.className = 'f-reset'; rb.textContent = 'Reset';
+    bar.appendChild(rb);
     const title = $('#searchTitle');
     title.parentNode.insertBefore(bar, title.nextSibling);
-    $$('select', bar).forEach(s => s.addEventListener('change', applyFilters));
-    $('#fReset').onclick = () => { $$('select', bar).forEach(s => (s.value = '')); applyFilters(); };
+    rb.onclick = () => {
+      $$('.sf-dd', bar).forEach(dd => {
+        dd.dataset.value = '';
+        const first = $('li', dd);
+        $('.select-trigger span', dd).textContent = first.textContent;
+        $$('li', dd).forEach((x, i) => x.classList.toggle('active', i === 0));
+      });
+      applyFilters();
+    };
 
     const nm = document.createElement('div');
     nm.id = 'sfNoMatch';
@@ -309,9 +353,10 @@
   function applyFilters() {
     const grid = $('#searchGrid');
     if (!grid) return;
+    const val = id => { const e = $('#' + id); return e ? e.dataset.value || '' : ''; };
     const f = {
-      type: $('#fType').value, genre: $('#fGenre').value, year: $('#fYear').value,
-      lang: $('#fLang').value, rate: parseFloat($('#fRate').value) || 0
+      type: val('fType'), genre: val('fGenre'), year: val('fYear'),
+      lang: val('fLang'), rate: parseFloat(val('fRate')) || 0
     };
     const cards = $$('.movie-card', grid);
     const yrMin = new Date().getFullYear() - 11;

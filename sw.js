@@ -1,5 +1,5 @@
 /* SHANFLIX service worker */
-const VERSION = 'shanflix-v4';
+const VERSION = 'shanflix-v5';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
@@ -30,6 +30,9 @@ self.addEventListener('fetch', e => {
 
   // Download catalog must always be fresh
   if (url.origin === location.origin && url.pathname.endsWith('/downloads.json')) return;
+
+  // Never touch cross-origin navigations (player iframes)
+  if (req.mode === 'navigate' && url.origin !== location.origin) return;
 
   // Page navigations: network first, fall back to cache, then offline page
   if (req.mode === 'navigate') {
