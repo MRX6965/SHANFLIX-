@@ -34,9 +34,9 @@ const VIDEO_SERVERS = [
   { id:'vidsync',   name:'Server 3 (VidSync)',
     movie: id => `https://vidsync.pro/movie/${id}`,
     tv: (id,s,e) => `https://vidsync.pro/tv/${id}/${s}/${e}` },
-  { id:'multiembed', name:'Server 4 (MultiEmbed)',
-    movie: id => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-    tv: (id,s,e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}` }
+  { id:'cinezo', name:'Server 4 (Cinezo)',
+    movie: id => `https://cinezo.live/movie/${id}`,
+    tv: (id,s,e) => `https://cinezo.live/tv/${id}/${s}/${e}` }
 ];
 
 /* ============================================================
