@@ -33,10 +33,7 @@ const VIDEO_SERVERS = [
     tv: (id,s,e) => `https://embed.vidrift.net/embed/tv/${id}/${s}/${e}` },
   { id:'vidsync',   name:'Server 3 (VidSync)',
     movie: id => `https://vidsync.pro/movie/${id}`,
-    tv: (id,s,e) => `https://vidsync.pro/tv/${id}/${s}/${e}` },
-  { id:'cinezo', name:'Server 4 (Cinezo)',
-    movie: id => `https://cinezo.live/movie/${id}`,
-    tv: (id,s,e) => `https://cinezo.live/tv/${id}/${s}/${e}` }
+    tv: (id,s,e) => `https://vidsync.pro/tv/${id}/${s}/${e}` }
 ];
 
 /* ============================================================
