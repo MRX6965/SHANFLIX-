@@ -17,7 +17,7 @@ async function tmdbFetch(endpoint, params = {}) {
 }
 
 /* ============================================================
-   VIDEO SERVERS — VidSync only
+   VIDEO SERVERS
    ============================================================ */
 const VIDEO_SERVERS = [
   { id:'vidlink',   name:'Server 1 (VidLink)',
@@ -1185,19 +1185,16 @@ function startDownload(key) {
   let url;
   try { url = new URL(entry.url, location.href); } catch (e) { return showToast('Invalid download link'); }
   if (url.protocol !== 'https:') return showToast('Download link must be https');
-  // Vercel Blob: force attachment so browsers download instead of playing
   if (url.hostname.endsWith('.blob.vercel-storage.com')) url.searchParams.set('download', '1');
 
   const ext = (url.pathname.match(/\.(mp4|mkv|webm|m4v|mov|zip)$/i) || ['', 'mp4'])[1];
   const label = (currentContent.title || 'SHANFLIX') + (key.startsWith('tv:') ? ' S' + key.split(':')[2].padStart(2,'0') + 'E' + key.split(':')[3].padStart(2,'0') : '');
   const filename = label.replace(/[\\/:*?"<>|]+/g, '').trim() + '.' + ext;
 
-  // Android app: hand off to the system DownloadManager
   if (window.ShanflixApp && typeof window.ShanflixApp.postMessage === 'function') {
     window.ShanflixApp.postMessage(JSON.stringify({ action: 'download', url: url.href, filename }));
     return;
   }
-  // Browser
   const a = document.createElement('a');
   a.href = url.href;
   a.download = filename;
@@ -1231,13 +1228,10 @@ function showAdblockModal() {
 }
 
 function detectAdblock() {
-  if (/SHANFLIXApp/.test(navigator.userAgent)) return; // app has no extensions
-  // Test switch: open the site with ?adblock=test to force the popup
+  if (/SHANFLIXApp/.test(navigator.userAgent)) return;
   if (/[?&]adblock=test/.test(location.search)) { try { sessionStorage.removeItem('adblockNoticeSeen'); } catch (e) {} showAdblockModal(); return; }
 
   const reasons = [];
-
-  // 1) Bait elements hidden by cosmetic filters
   const baits = [];
   ['adsbox ad-banner adsbygoogle', 'ad-placement ad_unit advert banner_ad', 'google-ad sponsor textads'].forEach((cls, i) => {
     const d = document.createElement('div');
@@ -1257,7 +1251,6 @@ function detectAdblock() {
     res();
   }, 500));
 
-  // 2) Ad network requests blocked
   const urls = [
     'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
     'https://googleads.g.doubleclick.net/pagead/id',
@@ -1274,7 +1267,7 @@ function detectAdblock() {
 }
 
 /* ============================================================
-   PWA & INSTALL LOGIC (Optimized for TWA/APK)
+   PWA & INSTALL LOGIC
    ============================================================ */
 let deferredInstallPrompt = null;
 
