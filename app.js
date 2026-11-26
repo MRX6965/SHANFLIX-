@@ -1,17 +1,22 @@
 /* ============================================================
    TMDB API CONFIGURATION
    ============================================================ */
+const DEFAULT_TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YzE2ZGIwODUxNjI5NzYxMzIxNTczZTVmNDZjNmIyNSIsIm5iZiI6MTc4Nzc0MjAzNi42NDIsInN1YiI6IjZhOGVjNzU0NzAyYmIxYTA3YzExMjI1NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E552pWRjPD57I0lW6C5Jz9iLV1mouqnCxZskqv4F5c4";
 const TMDB_API = "https://api.themoviedb.org/3";
 const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
 const TMDB_BACKDROP = "https://image.tmdb.org/t/p/w1280";
 const TMDB_IMG_PROFILE = "https://image.tmdb.org/t/p/w185";
 
 async function tmdbFetch(endpoint, params = {}) {
-  // Requests go through our own /api/tmdb proxy (token stays on the server)
-  const url = new URL('/api/tmdb', location.origin);
-  url.searchParams.set('path', endpoint);
+  const url = new URL(TMDB_API + endpoint);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-  const res = await fetch(url.toString(), { method: 'GET', headers: { accept: 'application/json' } });
+  const res = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${DEFAULT_TMDB_TOKEN}`
+    }
+  });
   if (!res.ok) throw new Error("TMDB API Error");
   return await res.json();
 }

@@ -1,5 +1,5 @@
 /* SHANFLIX service worker */
-const VERSION = 'shanflix-v7';
+const VERSION = 'shanflix-v8';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
