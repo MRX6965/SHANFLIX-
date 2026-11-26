@@ -1,9 +1,9 @@
 /* SHANFLIX service worker */
-const VERSION = 'shanflix-v5';
+const VERSION = 'shanflix-v7';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
-  "app.js", "features.js", "sync.js", "config.js",
+  "app.js", "features.js", "sync.js", "player.js", "rows.js", "i18n.js", "config.js",
   './', 'index.html', 'offline.html', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'
 ];
@@ -45,7 +45,7 @@ self.addEventListener('fetch', e => {
   }
 
   // TMDB API: network first, cache fallback
-  if (url.hostname === 'api.themoviedb.org') {
+  if (url.hostname === 'api.themoviedb.org' || url.pathname === '/api/tmdb') {
     e.respondWith(
       fetch(req)
         .then(res => { if (res.ok) caches.open(RUNTIME).then(c => c.put(req, res.clone())); return res; })

@@ -87,11 +87,16 @@
     const sn = seasons[si];
     const ei = sn.episodes.indexOf(currentEpisode);
     const all = getProg();
+    const prev = all[String(c.id)];
+    const sNum = sn.number || si + 1, eNum = currentEpisode.number || ei + 1;
+    const same = prev && prev.s === sNum && prev.e === eNum;
     all[String(c.id)] = {
       item: snap(c),
-      s: sn.number || si + 1,
-      e: currentEpisode.number || ei + 1,
-      t: Date.now()
+      s: sNum,
+      e: eNum,
+      t: Date.now(),
+      pos: same ? prev.pos : 0,
+      dur: same ? prev.dur : 0
     };
     // keep only the 30 most recent
     const keep = Object.entries(all).sort((a, b) => b[1].t - a[1].t).slice(0, 30);
@@ -166,6 +171,7 @@
              onerror="this.src='https://placehold.co/400x600/050a14/3b82f6?text=SHANFLIX'">
         <span class="poster-label">${escapeHTML(sub)}</span>
         ${opts.isNew ? '<span class="poster-status new-ep">NEW EP</span>' : ''}
+        ${opts.pct ? `<div class="row-bar"><i style="width:${opts.pct}%"></i></div>` : ''}
         ${opts.removable ? `<button class="row-x" aria-label="Remove" onclick="event.stopPropagation();sfRemoveProgress('${id}')">×</button>` : ''}
       </div>
       <div class="movie-info"><h3>${escapeHTML(item.title)}</h3>
@@ -188,7 +194,7 @@
     let html = '';
     if (prog.length) {
       html += `<div class="section-heading"><h2>Continue Watching</h2></div><div class="h-row">` +
-        prog.map(p => rowCard(p.item, isMovie(p.item) ? 'Movie' : `S${p.s} · E${p.e}`, { removable: true })).join('') + '</div>';
+        prog.map(p => rowCard(p.item, isMovie(p.item) ? 'Movie' : `S${p.s} · E${p.e}`, { removable: true, pct: p.dur > 0 ? Math.min(100, Math.round(p.pos / p.dur * 100)) : 0 })).join('') + '</div>';
     }
     if (list.length) {
       html += `<div class="section-heading"><h2>My List</h2></div><div class="h-row">` +
@@ -250,22 +256,32 @@
     });
     setTimeout(() => {
       if (ok || !iframe.isConnected || container.querySelector('.sf-stream-err')) return;
-      const box = document.createElement('div');
-      box.className = 'sf-stream-err';
-      box.innerHTML = `<h3>${navigator.onLine ? 'Video is taking too long' : "You're offline"}</h3>
-        <p>${navigator.onLine ? 'The player did not respond. Check your connection and try again.' : 'Reconnect to the internet and try again.'}</p>
-        <button class="err-btn" type="button" data-reload>Reload player</button>
-        <button class="err-btn" type="button" data-next style="margin-top:8px;background:transparent;border:1px solid var(--glass-border)">Try another server</button>`;
-      $('[data-reload]', box).onclick = () => { box.remove(); iframe.src = source; };
-      $('[data-next]', box).onclick = () => {
-        const i = VIDEO_SERVERS.findIndex(x => x.id === currentServerId);
-        const n = (i + 1) % VIDEO_SERVERS.length;
-        const li = $$('#serverOptionsList li')[n];
-        if (li) selectServer(VIDEO_SERVERS[n].id, li);
-      };
-      container.appendChild(box);
+      if (typeof window.sfFailover === 'function' && window.sfFailover('stall')) return;
+      showStreamErr(container, iframe, source);
     }, 12000);
   };
+
+  function showStreamErr(container, iframe, source) {
+    if (!container || container.querySelector('.sf-stream-err')) return;
+    const box = document.createElement('div');
+    box.className = 'sf-stream-err';
+    box.innerHTML = `<h3>${navigator.onLine ? "This video isn't playing" : "You're offline"}</h3>
+      <p>${navigator.onLine ? 'We tried the other servers too. You can reload, try again, or report it.' : 'Reconnect to the internet and try again.'}</p>
+      <button class="err-btn" type="button" data-reload>Reload player</button>
+      <button class="err-btn ghost" type="button" data-next>Try another server</button>
+      <button class="err-btn ghost" type="button" data-report>Report problem</button>`;
+    $('[data-reload]', box).onclick = () => { box.remove(); if (iframe && source) iframe.src = source; };
+    $('[data-next]', box).onclick = () => {
+      const i = VIDEO_SERVERS.findIndex(x => x.id === currentServerId);
+      const n = (i + 1) % VIDEO_SERVERS.length;
+      const li = $$('#serverOptionsList li')[n];
+      box.remove();
+      if (li) selectServer(VIDEO_SERVERS[n].id, li);
+    };
+    $('[data-report]', box).onclick = () => { if (window.sfReport) window.sfReport('broken'); };
+    container.appendChild(box);
+  }
+  window.sfShowStreamErr = showStreamErr;
 
   window.addEventListener('offline', () => toast("You're offline"));
   window.addEventListener('online', () => toast('Back online'));

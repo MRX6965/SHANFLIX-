@@ -1,6 +1,6 @@
 {
-  "versionCode": 2,
-  "versionName": "1.1",
+  "versionCode": 3,
+  "versionName": "1.2",
   "url": "https://github.com/MRX6965/SHANFLIX-/releases/download/apk-latest/SHANFLIX.apk",
-  "notes": "My List, Continue Watching, search filters and more."
+  "notes": "Exact resume, auto next episode, server fallback, picture-in-picture, Bengali UI, trending rows."
 }

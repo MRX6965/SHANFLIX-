@@ -671,6 +671,15 @@ body.player-open .modal-box{background:#0a0f1e}
 .sf-filters .custom-select.open{z-index:60}
 .sf-filters .select-options{max-height:260px;overflow-y:auto;min-width:100%}
 .sf-filters .select-trigger{height:38px;border-radius:8px;gap:8px}
+
+.row-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.25)}
+.row-bar i{display:block;height:100%;background:var(--red)}
+.err-btn.ghost{background:transparent;border:1px solid var(--glass-border);margin-top:8px}
+.sf-report{display:inline-block;margin:8px 0 0;font-size:12px;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline}
+
+/* header language / account button (also used by sync.js) */
+.sf-acc{height:36px;padding:0 14px;border-radius:18px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);cursor:pointer;white-space:nowrap}
+.sf-acc:hover{background:#2563eb}
 </style>
 </head>
 
@@ -862,5 +871,8 @@ body.player-open .modal-box{background:#0a0f1e}
 <script src="config.js"></script>
 <script src="features.js" defer></script>
 <script src="sync.js" defer></script>
+<script src="player.js" defer></script>
+<script src="rows.js" defer></script>
+<script src="i18n.js" defer></script>
 </body>
 </html>

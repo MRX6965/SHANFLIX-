@@ -1,0 +1,6 @@
+{
+  "name": "shanflix-tests",
+  "private": true,
+  "scripts": { "test": "node site.test.js" },
+  "devDependencies": { "jsdom": "^24.0.0" }
+}

@@ -13,6 +13,9 @@ import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 import android.app.AlertDialog;
+import android.app.PictureInPictureParams;
+import android.content.pm.ActivityInfo;
+import android.util.Rational;
 import android.content.pm.PackageInfo;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -122,6 +125,7 @@ public class MainActivity extends Activity {
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 web.setVisibility(View.GONE);
                 setImmersive(true);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
             }
 
             @Override
@@ -133,6 +137,7 @@ public class MainActivity extends Activity {
                 customCallback = null;
                 web.setVisibility(View.VISIBLE);
                 setImmersive(false);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         });
 
@@ -230,6 +235,18 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Keep a fullscreen video playing in a small window when the user leaves the app */
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (customView != null && Build.VERSION.SDK_INT >= 26) {
+            try {
+                enterPictureInPictureMode(new PictureInPictureParams.Builder()
+                        .setAspectRatio(new Rational(16, 9)).build());
+            } catch (Exception ignored) { }
+        }
+    }
+
     @Override
     public void onBackPressed() {
         if (customView != null) { web.getWebChromeClient().onHideCustomView(); return; }
@@ -242,7 +259,7 @@ public class MainActivity extends Activity {
         web.saveState(out);
     }
 
-    @Override protected void onPause() { super.onPause(); web.onPause(); }
+    @Override protected void onPause() { super.onPause(); if (!(Build.VERSION.SDK_INT >= 24 && isInPictureInPictureMode())) web.onPause(); }
     @Override protected void onResume() { super.onResume(); web.onResume(); }
 
     @Override
